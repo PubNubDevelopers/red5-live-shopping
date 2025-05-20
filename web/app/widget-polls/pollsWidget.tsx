@@ -10,7 +10,6 @@ import {
   uiResetChannel
 } from '../data/constants'
 import { actionCompleted } from 'pubnub-demo-integration'
-import ActiveTriviaDisplay from './activeTriviaDisplay'
 
 // Define new interfaces for Trivia
 interface TriviaOption {
@@ -84,10 +83,9 @@ export default function PollsWidget ({
     const allChannels = [pollDeclarations, pollVotes, pollResults, uiResetChannel];
 
     const listener = {
-      message: (event: MessageEvent) => {
+      message: (event: any) => {
         const msg = event.message as any;
         const chnl = event.channel;
-
         if (chnl === uiResetChannel && msg.resetPollsWidget === true) {
           setActiveTrivia(null);
           setCompletedTrivia([]);

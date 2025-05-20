@@ -404,7 +404,6 @@ export default function StreamWidget ({
         guidesShown={guidesShown}
         visibleGuide={visibleGuide}
         setVisibleGuide={setVisibleGuide}
-        awardPoints={awardPoints}
       />
     </div>
   )

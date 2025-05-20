@@ -27,8 +27,7 @@ export default function PreviewMobile ({
   visibleGuide,
   setVisibleGuide,
   logout,
-  currentScore
-}) {
+  }) {
   const [uiScore, setUiScore] = useState<number>(0);
   const [notification, setNotification] = useState<{
     heading: string
@@ -51,11 +50,6 @@ export default function PreviewMobile ({
       setUiScore(chat.currentUser.custom.score);
     }
   }, [chat, chat?.currentUser?.id]);
-
-  const currentScoreRef = useRef(currentScore)
-  useEffect(() => {
-    currentScoreRef.current = currentScore
-  }, [currentScore])
 
   useEffect(() => {
     if (!chat) return
@@ -228,18 +222,6 @@ export default function PreviewMobile ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
-              onAdClick={async points => {
-                const newScore = await AwardPoints(
-                  chat,
-                  points,
-                  null,
-                  uiScore,
-                  showNewPointsAlert
-                );
-                if (typeof newScore === 'number') {
-                  setUiScore(newScore);
-                }
-              }}
             />
             <BotWidget
               className={`${defaultWidgetClasses}`}
@@ -249,18 +231,6 @@ export default function PreviewMobile ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
-              onAdClick={async points => {
-                const newScore = await AwardPoints(
-                  chat,
-                  points,
-                  null,
-                  uiScore,
-                  showNewPointsAlert
-                );
-                if (typeof newScore === 'number') {
-                  setUiScore(newScore);
-                }
-              }}
             />
             <LiveCommentaryWidget
               className={`${defaultWidgetClasses}`}

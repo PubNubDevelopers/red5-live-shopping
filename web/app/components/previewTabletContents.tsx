@@ -161,18 +161,6 @@ export default function TabletContents ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
-              onAdClick={async points => {
-                const newScore = await AwardPoints(
-                  chat,
-                  points,
-                  null,
-                  uiScore,
-                  showNewPointsAlert
-                );
-                if (typeof newScore === 'number') {
-                  setUiScore(newScore);
-                }
-              }}
             />
             <AdvertsWidget
               className={`${defaultWidgetClasses}`}
