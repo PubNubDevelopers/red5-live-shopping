@@ -18,6 +18,10 @@ import {
 import ChatMessage from './components/ChatMessage'
 import MessageInput from './components/MessageInput'
 
+// Define channel constants
+const mainChatChannelId = 'game.chat';
+const questionsChannelId = 'game.chat.questions';
+
 interface ChatWidgetProps {
   className: string
   isMobilePreview: boolean
@@ -50,8 +54,10 @@ export default function ChatWidget ({
   const [activeChannel, setActiveChannel] = useState<Channel | null>(null)
   const [publicChannels, setPublicChannels] = useState<Channel[]>([])
 
-  // Message state
-  const [messages, setMessages] = useState<Message[]>([])
+  // Message state - NEW: Separate stores for all and question messages
+  const [allMessages, setAllMessages] = useState<Message[]>([])
+  const [questionMessages, setQuestionMessages] = useState<Message[]>([])
+  const [displayedMessages, setDisplayedMessages] = useState<Message[]>([]) // Messages currently shown in UI
   const [messageInput, setMessageInput] = useState('')
 
   // UI state
@@ -69,21 +75,27 @@ export default function ChatWidget ({
   const [activeChannelRestrictions, setActiveChannelRestrictions] =
     useState<Restriction | null>(null)
 
+  // State for the question filter
+  const [isQuestionFilterActive, setIsQuestionFilterActive] = useState(false)
+
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   /**
-   * Initialize chat channels when chat is available
+   * Effect 1: Initialize basic chat settings and set the initial active channel ID.
    */
   useEffect(() => {
-    if (!chat) return
+    if (!chat) return;
 
-    // Fetch all channels and users
-    fetchChannels()
-    fetchUsers()
-
-    // Set the first channel as active if none is selected
-    if (!activeChannelId && publicChannels.length > 0) {
-      setActiveChannelId(publicChannels[0].id)
+    console.log("[ChatWidget] Effect 1: Chat object available. Setting up initial state.");
+    fetchUsers(); 
+    // fetchChannels(); // If fetchChannels is crucial for chat.getChannel to work, ensure it completes or its necessity is re-evaluated.
+    
+    // Set initial activeChannelId only once if not already set.
+    // The filter effect (Effect 2) will also set it based on isQuestionFilterActive,
+    // ensuring it defaults to mainChatChannelId on first meaningful render with chat.
+    if (!activeChannelId) {
+        console.log("[ChatWidget] Effect 1: No activeChannelId set, defaulting to mainChatChannelId.");
+        setActiveChannelId(mainChatChannelId);
     }
 
     const renderMessagePartMention = (
@@ -98,7 +110,6 @@ export default function ChatWidget ({
       }
       return ''
     }
-
     const removeMentionsListener = chat.listenForEvents({
       user: chat.currentUser.id,
       type: 'mention',
@@ -113,11 +124,32 @@ export default function ChatWidget ({
         )
       }
     })
-
     return () => {
-      removeMentionsListener()
+      removeMentionsListener();
+    };
+  }, [chat, userMentioned]); // Removed activeChannelId from here to avoid loops if fetchChannels was also setting it.
+
+  /**
+   * Effect 2: Switch activeChannelId based on filter toggle.
+   */
+  useEffect(() => {
+    if (!chat) return;
+    const targetChannelId = isQuestionFilterActive ? questionsChannelId : mainChatChannelId;
+    console.log(`[ChatWidget] Effect 2: Filter changed or chat ready. Target channel ID: ${targetChannelId}`);
+    setActiveChannelId(targetChannelId);
+  }, [isQuestionFilterActive, chat]);
+
+  /**
+   * Effect 3: Update displayedMessages based on active filter and data stores.
+   */
+  useEffect(() => {
+    console.log(`[ChatWidget] Effect 3: Updating displayedMessages. Filter active: ${isQuestionFilterActive}`);
+    if (isQuestionFilterActive) {
+      setDisplayedMessages(questionMessages);
+    } else {
+      setDisplayedMessages(allMessages);
     }
-  }, [chat])
+  }, [isQuestionFilterActive, allMessages, questionMessages]);
 
   useEffect(() => {
     if (!chat || !activeChannel) return
@@ -138,13 +170,13 @@ export default function ChatWidget ({
   useEffect(() => {
     if (simulatedOccupancy > 20) {
       const interval = setInterval(() => {
-        const randomPercentage = (Math.random() * 0.2 - 0.1); // Random value between -0.1 and +0.1
-        setSimulatedOccupancy(prev => Math.max(0, Math.round(prev * (1 + randomPercentage))));
-      }, 3000);
+        const randomPercentage = (Math.random() * 0.2 - 0.1)
+        setSimulatedOccupancy(prev => Math.max(0, Math.round(prev * (1 + randomPercentage))))
+      }, 3000)
 
-      return () => clearInterval(interval);
+      return () => clearInterval(interval)
     }
-  }, [simulatedOccupancy]);
+  }, [simulatedOccupancy])
 
   function updateActiveChannelRestrictions () {
     //  Update the restrictions of the currently active channel whenever that changes
@@ -160,67 +192,61 @@ export default function ChatWidget ({
   }
 
   /**
-   * When active channel ID changes, set up the active channel
+   * Effect 4: Core logic to set up the active channel connection when activeChannelId changes.
    */
   useEffect(() => {
-    if (!chat || !activeChannelId) return
-
-    // This effect is for when activeChannelId changes and sets up the active chat channel.
-    // It should not handle the global uiResetChannel listener.
-
+    if (!chat || !activeChannelId) {
+      console.log("[ChatWidget] Effect 4: Skipping setupActiveChannel - no chat or activeChannelId.");
+      setActiveChannel(null); // Ensure activeChannel is null if conditions aren't met
+      return;
+    }
+    console.log(`[ChatWidget] Effect 4: activeChannelId changed to '${activeChannelId}'. Calling setupActiveChannel.`);
     const cleanupPromise = setupActiveChannel();
-    
     return () => {
+      console.log("[ChatWidget] Effect 4: Cleaning up previous active channel setup.");
       if (cleanupPromise && typeof cleanupPromise.then === 'function') {
         cleanupPromise.then(fn => {
           if (fn && typeof fn === 'function') fn();
         });
       }
     };
-  }, [activeChannelId, chat]);
+  }, [activeChannelId, chat]); // This is the key effect for channel connection
 
   // Separate useEffect for the uiResetChannel listener, tied only to `chat` availability.
   useEffect(() => {
-    if (!chat?.sdk) return; // Check for chat.sdk
+    if (!chat?.sdk) return
 
     const resetListener = {
       message: (messageEvent) => {
         // PubNub SDK message events have `channel` and `message` directly on messageEvent
-        const msgPayload = messageEvent.message as any; 
-        const eventChannel = messageEvent.channel;
+        const msgPayload = messageEvent.message as any
+        const eventChannel = messageEvent.channel
 
         if (eventChannel === uiResetChannel && msgPayload.resetChat === true) {
-          // console.log("[ChatWidget] Received resetChat signal via dedicated listener.");
-          setMessages([]);
+          console.log("[ChatWidget] Received resetChat signal. Clearing all message stores.");
+          setAllMessages([])
+          setQuestionMessages([])
         }
       }
-    };
+    }
     
-    chat.sdk.addListener(resetListener);
-    chat.sdk.subscribe({ channels: [uiResetChannel] });
+    chat.sdk.addListener(resetListener)
+    chat.sdk.subscribe({ channels: [uiResetChannel] })
 
     return () => {
       if (chat?.sdk) { // Ensure chat.sdk still exists on cleanup
-        chat.sdk.removeListener(resetListener);
-        chat.sdk.unsubscribe({ channels: [uiResetChannel] });
-      }
-    };
-  }, [chat]); // Depends only on the chat object
-
-  /**
-   * Scroll to bottom of messages when messages change
-   */
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      const lastMessageUser = messages[messages.length - 1].userId
-      if (lastMessageUser.startsWith('user-')) {
-        Message.streamUpdatesOn(messages, setMessages)
+        chat.sdk.removeListener(resetListener)
+        chat.sdk.unsubscribe({ channels: [uiResetChannel] })
       }
     }
+  }, [chat]) // Depends only on the chat object
 
+  /**
+   * Scroll to bottom of messages when displayedMessages change
+   */
+  useEffect(() => {
     scrollToBottom()
-  }, [messages])
+  }, [displayedMessages])
 
   /**
    * Fetches all available channels and organizes them by type
@@ -230,6 +256,9 @@ export default function ChatWidget ({
 
     try {
       // Get all channels from PubNub Chat SDK
+      // For the live shopping app, we might not need to dynamically fetch public channels
+      // if 'game.chat' is the only one we care about initially.
+      // However, keeping this for now in case other parts of the app use it.
       const result = await chat.getChannels()
       const channels = result.channels || []
 
@@ -276,112 +305,113 @@ export default function ChatWidget ({
    * Sets up the active channel and its message listeners
    */
   const setupActiveChannel = async () => {
-    if (!chat || !activeChannelId) return
+    if (!chat || !activeChannelId) {
+      console.error("[setupActiveChannel] Guard hit: No chat or activeChannelId. This should not happen if Effect 4 is working.");
+      setActiveChannel(null); // Explicitly nullify
+      return () => {};
+    }
 
-    // Clear existing messages and typing users before setting up new channel
-    setMessages([])
-
+    console.log(`[setupActiveChannel] Attempting to get channel: '${activeChannelId}'`);
     try {
-      // Fetch the selected channel using PubNub Chat SDK
-      const channel = await chat.getChannel(activeChannelId)
+      const channel = await chat.getChannel(activeChannelId);
 
       if (!channel) {
-        console.error(`Channel ${activeChannelId} not found`)
-        return
+        console.error(`[setupActiveChannel] chat.getChannel('${activeChannelId}') returned null or undefined. Cannot setup channel.`);
+        setActiveChannel(null); // CRITICAL: Ensure activeChannel is null if no channel object
+        // Clear relevant message store if channel can't be fetched
+        if (activeChannelId === mainChatChannelId) setAllMessages([]);
+        else if (activeChannelId === questionsChannelId) setQuestionMessages([]);
+        return () => {}; // Return empty cleanup
       }
 
-      setActiveChannel(channel)
-      //setWhoIsPresent(await chat.whoIsPresent(activeChannelId));
+      console.log(`[setupActiveChannel] Successfully fetched channel object for '${activeChannelId}'. Setting active channel.`);
+      setActiveChannel(channel); // Set the active channel object
 
-      // Get channel history
-      /*
-      try {
-        const history = await channel.getHistory()
+      let unsubscribeMessages = () => {};
+      const messageLimit = 40;
 
-        setMessages(history.messages || [])
-      } catch (error) {
-        console.error('Error fetching message history:', error)
-        setMessages([])
-      }
-        */
-
-      // Initialize cleanup functions
-      let unsubscribeMessages = () => {}
-
-      // Connect to channel to receive messages
-
-      unsubscribeMessages = channel.connect(async (message: Message) => {
-        setMessages(prevMessages => {
-          // Check if message already exists
-          const messageExists = prevMessages.some(
-            m => m.timetoken === message.timetoken
-          )
-          if (messageExists) return prevMessages
-          const newMessages = [...prevMessages, message]
-          return newMessages.slice(-40)
-        })
-      })
-
-      //  Occupancy updates from Data Controls
-      const occupancyChannel = chat.sdk.channel(dataControlOccupancyChannelId)
-      const occupancySubscription = occupancyChannel.subscription({
-        receivePresenceEvents: false
-      })
-      occupancySubscription.onMessage = (messageEvent: any) => {
-        setSimulatedOccupancy(+messageEvent.message.chatOccupancy)
-      }
-      occupancySubscription.subscribe()
-
-      const serverVideoControlChannel = chat.sdk.channel(
-        serverVideoControlChannelId
-      )
-      const serverVideoControlSubscription =
-        serverVideoControlChannel.subscription({
-          receivePresenceEvents: false
-        })
-      serverVideoControlSubscription.onMessage = (messageEvent: any) => {
-        if (messageEvent.message.type === 'START_STREAM') {
-          setMessages([])
+      if (activeChannelId === mainChatChannelId) {
+        if (allMessages.length === 0) {
+          console.log(`[setupActiveChannel] Fetching history for ${mainChatChannelId}`);
+          const history = await channel.getHistory({ count: 50 });
+          setAllMessages(history.messages.reverse() || []);
         }
+        unsubscribeMessages = channel.connect(async (message: Message) => {
+          setAllMessages(prevMessages => {
+            const messageExists = prevMessages.some(m => m.timetoken === message.timetoken);
+            if (messageExists) return prevMessages;
+            const newMessages = [...prevMessages, message];
+            return newMessages.slice(-messageLimit);
+          });
+        });
+      } else if (activeChannelId === questionsChannelId) {
+        if (questionMessages.length === 0) {
+          console.log(`[setupActiveChannel] Fetching history for ${questionsChannelId}`);
+          const history = await channel.getHistory({ count: 50 });
+          setQuestionMessages(history.messages || []);
+        }
+        unsubscribeMessages = channel.connect(async (message: Message) => {
+          setQuestionMessages(prevMessages => {
+            const messageExists = prevMessages.some(m => m.timetoken === message.timetoken);
+            if (messageExists) return prevMessages;
+            const newMessages = [...prevMessages, message];
+            return newMessages.slice(-messageLimit);
+          });
+        });
       }
-      serverVideoControlSubscription.subscribe()
+      
+      // Occupancy updates from Data Controls
+      const occupancyChannel = chat.sdk.channel(dataControlOccupancyChannelId);
+      const occupancySubscription = occupancyChannel.subscription({ receivePresenceEvents: false });
+      occupancySubscription.onMessage = (messageEvent: any) => {
+        setSimulatedOccupancy(+messageEvent.message.chatOccupancy);
+      };
+      occupancySubscription.subscribe();
+
+      const serverVideoControlChannel = chat.sdk.channel(serverVideoControlChannelId);
+      const serverVideoControlSubscription = serverVideoControlChannel.subscription({
+          receivePresenceEvents: false
+      });
+      serverVideoControlSubscription.onMessage = (messageEvent: any) => {
+          if (messageEvent.message.type === 'START_STREAM') {
+              console.log("[setupActiveChannel] START_STREAM received, clearing message stores.");
+              setAllMessages([]);
+              setQuestionMessages([]);
+          }
+      };
+      serverVideoControlSubscription.subscribe();
 
       //  For consistency with the live stream, use the reactions channel for real occupancy
-      const reactionsChannel = chat.sdk.channel(streamReactionsChannelId)
-      const reactionsSubscription = reactionsChannel.subscription({
-        receivePresenceEvents: true
-      })
+      const reactionsChannel = chat.sdk.channel(streamReactionsChannelId);
+      const reactionsSubscription = reactionsChannel.subscription({ receivePresenceEvents: true });
       reactionsSubscription.onPresence = (presenceEvent: any) => {
         if (presenceEvent?.occupancy > 0) {
-          setRealOccupancy(presenceEvent.occupancy)
+          setRealOccupancy(presenceEvent.occupancy);
         }
-      }
-      chat.sdk
-        .hereNow({ channels: [streamReactionsChannelId] })
-        .then(hereNowResult => {
-          if (hereNowResult) {
-            setRealOccupancy(hereNowResult.totalOccupancy + 1)
-          }
-        })
-      reactionsSubscription.subscribe()
+      };
+      chat.sdk.hereNow({ channels: [streamReactionsChannelId] }).then(hereNowResult => {
+        if (hereNowResult) {
+          setRealOccupancy(hereNowResult.totalOccupancy + 1);
+        }
+      });
+      reactionsSubscription.subscribe();
 
-      // Return cleanup function
       return () => {
-        if (typeof unsubscribeMessages === 'function') {
-          unsubscribeMessages()
-        }
-        setMessages([])
-        occupancySubscription.unsubscribe()
-        reactionsSubscription.unsubscribe()
-        serverVideoControlSubscription.unsubscribe()
-      }
+        console.log(`[setupActiveChannel] Cleaning up subscriptions for channel '${activeChannelId}'`);
+        if (typeof unsubscribeMessages === 'function') unsubscribeMessages();
+        occupancySubscription.unsubscribe();
+        reactionsSubscription.unsubscribe();
+        serverVideoControlSubscription.unsubscribe();
+      };
     } catch (error) {
-      console.error(`Error setting up channel ${activeChannelId}:`, error)
-      return () => {
-        setMessages([])
-      }
+      console.error(`[setupActiveChannel] Error setting up channel '${activeChannelId}':`, error);
+      setActiveChannel(null); // Ensure activeChannel is null on error
+      if (activeChannelId === mainChatChannelId) setAllMessages([]);
+      else if (activeChannelId === questionsChannelId) setQuestionMessages([]);
+      else { setAllMessages([]); setQuestionMessages([]); }
+      return () => {};
     }
-  }
+  };
 
   /**
    * Scrolls to the bottom of the message list
@@ -591,7 +621,7 @@ export default function ChatWidget ({
             ref={messagesContainerRef}
             className='py-[12px] px-[16px] overflow-y-auto flex-grow'
           >
-            {messages.length === 0 ? (
+            {displayedMessages.length === 0 ? (
               <div className='text-center text-gray-500 py-4'>
                 No messages yet. Be the first to say something!
               </div>
@@ -602,9 +632,7 @@ export default function ChatWidget ({
               </div>
             ) : (
               <>
-                {messages.map((message, index) => {
-                  // const user = await chat.getUser('')
-
+                {displayedMessages.map((message, index) => {
                   return (
                     <ChatMessage
                       key={`${message.timetoken}-${index}`}
@@ -631,6 +659,14 @@ export default function ChatWidget ({
             activeChannelRestrictions={activeChannelRestrictions}
             isGuidedDemo={isGuidedDemo}
           />
+
+          {/* Question Filter Toggle Button */}
+          <button
+            onClick={() => setIsQuestionFilterActive(prev => !prev)}
+            className="w-full p-2 mt-1 text-xs text-white bg-gray-700 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {isQuestionFilterActive ? "Show All Messages" : "Show Questions Only"}
+          </button>
         </div>
       )}
     </div>
