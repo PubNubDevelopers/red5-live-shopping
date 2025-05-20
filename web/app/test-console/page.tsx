@@ -556,12 +556,12 @@ export default function Page () {
           Send Random Match Stats
         </div>
 
-        <div className='text-xl'>Live Commentary</div>
+        <div className='text-xl'>Real-time Video Transcription</div>
         <div
           className={`${testStyle}`}
           onClick={() => sendLiveCommentaryMessage()}
         >
-          Send a Live Commentary Message
+          Send a Real-time Video Transcription Message
         </div>
       </div>
     </main>

@@ -10,7 +10,7 @@ const { chat } = require("./game-data/chat.js");
 const { commentary } = require("./game-data/commentary.js");
 const { polls } = require("./game-data/polls.js");
 const { reactions } = require("./game-data/reactions.js");
-const { stats } = require("./game-data/stats.js");
+const productsData = require("./game-data/products.json");
 const { fanExcitement } = require("./on-demand/fan-excitement.js");
 const { fanFrustration } = require("./on-demand/fan-frustration.js");
 const { goalScored } = require("./on-demand/push-goal.js");
@@ -33,8 +33,15 @@ const CONTROL_CHANNEL = "game.server-video-control";
 const POLL_DECLARATION_CHANNEL = "game.new-poll";
 const POLL_VOTE_CHANNEL = "game.poll-votes";
 const POLL_RESULTS_CHANNEL = "game.poll-results";
+const UI_RESET_CHANNEL = "game.ui-reset"; // New channel for UI reset signals
 pubnub.subscribe({
-  channels: [CONTROL_CHANNEL, POLL_DECLARATION_CHANNEL, POLL_VOTE_CHANNEL],
+  channels: [
+    CONTROL_CHANNEL, 
+    POLL_DECLARATION_CHANNEL, 
+    POLL_VOTE_CHANNEL, 
+    POLL_RESULTS_CHANNEL,
+    // UI_RESET_CHANNEL // No need for backend to subscribe to its own reset publish channel
+  ],
 });
 pubnub.addListener({
   message: async ({ channel, message }) => {
@@ -42,11 +49,18 @@ pubnub.addListener({
       await handleControlMessage(message);
     } else if (
       channel === POLL_DECLARATION_CHANNEL &&
-      message.pollType === "side"
+      (message.pollType === "side" || message.pollType === "featuredStreamPoll")
     ) {
       await handlePollDeclarationMessage(message);
-    } else if (channel === POLL_VOTE_CHANNEL && message.pollType === "side") {
+    } else if (channel === POLL_VOTE_CHANNEL && (message.pollType === "side" || message.pollType === "featuredStreamPoll")) {
       await handleVoteMessage(message);
+    } else if (channel === POLL_RESULTS_CHANNEL && message.isFinalSignal === true && message.pollType === 'featuredStreamPoll') {
+      // This was the old condition for processFeaturedPollEnd, which is now integrated into the main loop's poll processing
+      // await processFeaturedPollEnd(message); // This specific call might be redundant if main loop handles poll end event from polls.js
+      // The main loop will publish the isFinal:true from polls.js data, which processFeaturedPollEnd handles.
+      // However, processFeaturedPollEnd is also called by the script runner when a poll event with isFinalSignal comes up.
+      // For clarity, let's assume the main script runner's call to processFeaturedPollEnd (via a direct event in polls.js)
+      // is the primary way this is triggered for featured polls based on its definition in polls.js
     }
   },
 });
@@ -87,6 +101,23 @@ async function handleControlMessage(msg) {
       scriptIndex = matchScript.findIndex(
         (ev) => ev.timeSinceVideoStartedInMs >= currentTime
       );
+      // Reset backend states
+      voteCounts = {};
+      // console.log("[Backend] voteCounts reset on END_STREAM."); // Optional: for debugging
+      
+      // Publish a message to tell UI components to reset themselves
+      await pubnub.publish({
+        channel: UI_RESET_CHANNEL,
+        message: { 
+          resetLiveStreamPoll: true, 
+          resetPollsWidget: true, 
+          resetCommentary: true,
+          resetChat: true,
+          resetProductShowcase: true
+        },
+        storeInHistory: false // No need to store this signal
+      });
+
       await publishVideoEvent("END_STREAM", {});
       break;
     case "BOT_CHAT":
@@ -135,25 +166,55 @@ async function handleControlMessage(msg) {
 
 async function handlePollDeclarationMessage(msg) {
   const pollId = msg.id;
-  const numOptions = msg.options.length;
-  for (let i = 0; i < 10; i++) {
+  const pollOptions = msg.options;
+  const incomingPollType = msg.pollType;
+
+  if (!pollOptions || pollOptions.length === 0) {
+    console.error("[SimulateVotes] No options found for poll/trivia ID:", pollId);
+    return;
+  }
+
+  const numberOfSimulatedVotes = Math.floor(Math.random() * 4) + 4; // Simulate 4 to 7 votes
+
+  for (let i = 0; i < numberOfSimulatedVotes; i++) {
+    // Delay each simulated vote by 1.5 to 4 seconds randomly
+    const randomDelay = Math.floor(Math.random() * 2500) + 1500;
     setTimeout(async () => {
-      const randomOption = msg.options[Math.floor(Math.random() * numOptions)];
-      const randomIndex = randomOption.id;
-      const message = {
+      // Ensure we are still processing the same poll, in case a new one came in quickly
+      // This check might be overly cautious if handlePollDeclarationMessage is not re-entrant for same poll ID
+      // or if the outer script processing ensures one poll declaration completes before another.
+      // For simplicity, assuming the setTimeout closure captures the correct pollId and pollOptions.
+
+      const randomOption = pollOptions[Math.floor(Math.random() * pollOptions.length)];
+      const simulatedVote = {
         pollId: pollId,
-        questionId: "1",
-        choiceId: randomIndex,
-        pollType: "side",
+        choiceId: randomOption.id,
+        pollType: incomingPollType,
+        simulated: true
       };
-      await publishMessage(POLL_VOTE_CHANNEL, message);
-    }, i * 3000);
+
+      // Publish to POLL_VOTE_CHANNEL. This will be picked up by the listener,
+      // which calls handleVoteMessage, which updates voteCounts and publishes to POLL_RESULTS_CHANNEL.
+      try {
+        // Directly use pubnub.publish here as publishMessage has extra logic we might not need for this simple case,
+        // and to ensure it goes to the intended channel for the listener.
+        // The main listener for POLL_VOTE_CHANNEL will call handleVoteMessage.
+        await pubnub.publish({
+          channel: POLL_VOTE_CHANNEL,
+          message: simulatedVote,
+          storeInHistory: false // Simulated votes shouldn't be in history
+        });
+      } catch (error) {
+        console.error("[SimulateVotes] Error publishing simulated vote:", error);
+      }
+    }, i * 2000 + randomDelay); // Stagger votes, ensure `i` factor is significant enough
   }
 }
 
 async function handleVoteMessage(msg) {
   const pollId = msg.pollId;
   const choiceId = msg.choiceId;
+  const incomingPollType = msg.pollType;
 
   // Initialize vote counts for this poll if not already tracked
   if (!voteCounts[pollId]) {
@@ -165,6 +226,129 @@ async function handleVoteMessage(msg) {
     voteCounts[pollId][choiceId] = 0;
   }
   voteCounts[pollId][choiceId]++;
+
+  // Publish interim results immediately after a vote
+  const currentVotesForPoll = voteCounts[pollId];
+  const optionsForInterimResult = Object.entries(currentVotesForPoll).map(
+    ([optId, score]) => ({
+      id: parseInt(optId),
+      score: score,
+    })
+  );
+
+  const interimResultMessage = {
+    id: pollId,
+    options: optionsForInterimResult,
+    pollType: incomingPollType,
+  };
+
+  // Publish to POLL_RESULTS_CHANNEL, not stored in history
+  await pubnub.publish({
+    channel: POLL_RESULTS_CHANNEL,
+    message: interimResultMessage,
+    storeInHistory: false,
+  });
+}
+
+// Function to process the end of a featured poll
+async function processFeaturedPollEnd(signalMessage) {
+  const pollId = signalMessage.id;
+  console.log(`[Backend] Processing featured poll end signal for ID: ${pollId}`);
+
+  // Synchronous vote simulation if no votes are present (e.g., due to a fast jump)
+  if (!voteCounts[pollId] || Object.keys(voteCounts[pollId]).length === 0) {
+    console.warn(`[Backend] No vote counts found for ended featured poll ID: ${pollId}. Attempting synchronous simulation.`);
+    
+    // Find the original poll declaration to get its options
+    // The 'polls' variable is imported from './game-data/polls.js' at the top of the file.
+    const originalPollEvent = polls.find(
+      (p) => p.action.data.id === pollId && p.action.channel === POLL_DECLARATION_CHANNEL
+    );
+
+    if (originalPollEvent && originalPollEvent.action.data.options && originalPollEvent.action.data.options.length > 0) {
+      const pollOptions = originalPollEvent.action.data.options;
+      voteCounts[pollId] = {}; // Initialize/reset for this poll
+      const numberOfSimulatedVotes = Math.floor(Math.random() * 20) + 10; // Simulate 10-29 votes
+
+      for (let i = 0; i < numberOfSimulatedVotes; i++) {
+        const randomOption = pollOptions[Math.floor(Math.random() * pollOptions.length)];
+        if (!voteCounts[pollId][randomOption.id]) {
+          voteCounts[pollId][randomOption.id] = 0;
+        }
+        voteCounts[pollId][randomOption.id]++;
+      }
+      console.log(`[Backend] Synchronously simulated votes for poll ${pollId}:`, voteCounts[pollId]);
+    } else {
+      console.error(`[Backend] Could not find original declaration or options for poll ${pollId} to perform synchronous vote simulation.`);
+      // If simulation fails, publish empty final results to still signal the end.
+      const finalResults = {
+        id: pollId,
+        pollType: "featuredStreamPoll",
+        options: [], 
+        isFinal: true,
+      };
+      await pubnub.publish({
+        channel: POLL_RESULTS_CHANNEL,
+        message: finalResults,
+        storeInHistory: true, 
+      });
+      // Clean up vote counts for this poll even if it was empty or simulation failed
+      delete voteCounts[pollId]; 
+      return; 
+    }
+  }
+
+  const finalVoteCounts = voteCounts[pollId];
+  const optionsWithFinalScores = Object.entries(finalVoteCounts).map(
+    ([optId, score]) => ({
+      id: parseInt(optId),
+      score: score,
+    })
+  );
+
+  const finalResultsMessage = {
+    id: pollId,
+    pollType: "featuredStreamPoll",
+    options: optionsWithFinalScores,
+    isFinal: true,
+  };
+
+  console.log(`[Backend] Publishing final results for featured poll ID: ${pollId}:`, finalResultsMessage);
+  await pubnub.publish({
+    channel: POLL_RESULTS_CHANNEL,
+    message: finalResultsMessage,
+    storeInHistory: true, // Store final results
+  });
+
+  // Clean up vote counts for this poll
+  delete voteCounts[pollId];
+  console.log(`[Backend] Cleaned up vote counts for featured poll ID: ${pollId}`);
+}
+
+// New function to build product events
+function buildProductEvents(products) {
+  const productEvents = [];
+  products.forEach(product => {
+    // Event to show the product
+    productEvents.push({
+      timeSinceVideoStartedInMs: product.startTimeMs,
+      persistInHistory: true,
+      action: {
+        channel: "game.match-stats", // Reusing channel
+        data: product
+      }
+    });
+    // Event to clear the product when it ends
+    productEvents.push({
+      timeSinceVideoStartedInMs: product.endTimeMs,
+      persistInHistory: true, // Important for late joiners to know product ended
+      action: {
+        channel: "game.match-stats",
+        data: { type: "PRODUCT_ENDED", id: product.id, originalEndTime: product.endTimeMs }
+      }
+    });
+  });
+  return productEvents;
 }
 
 async function handlePollResultsMessage(msg) {
@@ -236,8 +420,9 @@ function expandRepeatedEvents(events) {
 // --------------------------------------------------------------------------------
 // Merge data from all modules and sort by the timeline
 function buildMatchScript() {
+  const productActionEvents = buildProductEvents(productsData); // Generate product events
   // All modules combined
-  let merged = [...chat, ...commentary, ...polls, ...reactions, ...stats];
+  let merged = [...chat, ...commentary, ...polls, ...reactions, ...productActionEvents]; // Use product events, remove stats
 
   // Expand repeats first
   let expanded = expandRepeatedEvents(merged);

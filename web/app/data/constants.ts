@@ -22,10 +22,13 @@ export const dynamicAdChannelId = "game.dynamic-ad";
 export const clientVideoControlChannelId = "game.client-video-control";
 export const serverVideoControlChannelId = "game.server-video-control";
 export const illuminateUpgradeReaction = "illuminate-upgrade-reaction";
-export const dataControlOccupancyChannelId = "game.dataControlsOccupancy"
+export const dataControlOccupancyChannelId = "game.data-control-occupancy";
+
+// New channel for UI reset signals
+export const uiResetChannel = "game.ui-reset";
 
 //export const streamUrl = "https://youtu.be/IprCMEH8Vt4";
-export const streamUrl = "https://vimeo.com/1073970603"
+export const streamUrl = "https://vimeo.com/1083475947"
 
 export const reactions = ["👍", "❤️", "😂", "😮", "👏"]
 

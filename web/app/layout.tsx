@@ -14,9 +14,9 @@ const figtree = Figtree({
 })
 
 export const metadata: Metadata = {
-  title: 'Live Events Solution by PubNub',
+  title: 'Live Shopping Experience by PubNub',
   description:
-    'Solution showcase to demonstrate how PubNub can enhance your live event, whether it is a sports event, a concert, or any other streamed media event.'
+    'Interactive live shopping platform demonstrating how PubNub can enhance your e-commerce experience with real-time features like live chat, product showcases, and interactive shopping elements.'
 }
 
 export default function RootLayout ({

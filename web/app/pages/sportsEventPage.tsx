@@ -17,11 +17,11 @@ export default function SportsEventPage ({
   setLoginPageShown,
   isGuidedDemo
 }) {
+  console.log("SportsEventPage rendered. Chat object:", chat);
   const [tabletPreview, setTabletPreview] = useState(true)
   const [sideMenuOpen, setSideMenuOpen] = useState(true)
   const [guidesShown, setGuidesShown] = useState(false)
   const [visibleGuide, setVisibleGuide] = useState('')
-  const [currentScore, setCurrentScore] = useState(0)
   const [dataControlsDropDownVisible, setDataControlsDropDownVisible] =
   useState(false)
 
@@ -35,21 +35,6 @@ export default function SportsEventPage ({
     setLoginPageShown(true)
     setUserId(null)
   }
-
-  useEffect(() => {
-    //  Get updates on the current user
-    //  Requires 'User Metadata Events' enabled on the keyset
-    //  test logging out and in again as another user
-    if (!chat) return
-    if (!chat.currentUser) return
-    setCurrentScore(chat.currentUser.custom?.score ?? 0)
-    return chat.currentUser.streamUpdates(updatedUser => {
-      if (updatedUser.custom?.score) {
-        //console.log('user has updated - setting score to ' + updatedUser.custom.score)
-        setCurrentScore(updatedUser.custom.score)
-      }
-    })
-  }, [chat])
 
   if (!chat) {
     return (
@@ -122,7 +107,6 @@ export default function SportsEventPage ({
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
               logout={logout}
-              currentScore={currentScore}
             ></PreviewTablet>
           </div>
           <PreviewMobile
@@ -133,7 +117,6 @@ export default function SportsEventPage ({
             visibleGuide={visibleGuide}
             setVisibleGuide={setVisibleGuide}
             logout={logout}
-            currentScore={currentScore}
           ></PreviewMobile>
         </div>
       </div>

@@ -35,12 +35,12 @@ export default function SideMenuDataControls ({
   const simulationNames = [
     'Select',
     'Start / restart simulation',
-    'Goal',
-    'Goal + Push Message',
-    'Fan excitement',
-    'Fan frustration',
-    'Injury time',
-    'Injury time + Push',
+    'Game Boy Color (Intro)',
+    'Game Boy Color (Screen Scratch Detail)',
+    'Game Boy Advance SP',
+    'DSi',
+    '3DS XL',
+    'Jump to Featured Poll End',
     'Pause / Resume Bot chat',
     'End simulation'
   ]
@@ -58,79 +58,61 @@ export default function SideMenuDataControls ({
           channel: serverVideoControlChannelId
         })
         break
-      case 'Goal':
-        //  Seek to the second goal
+      case 'Game Boy Color (Intro)':
         await chat.sdk.publish({
           message: {
             type: 'SEEK',
-            params: { playbackTime: 158000 }
+            params: { playbackTime: 50395 }
           },
           channel: serverVideoControlChannelId
         })
         break
-      case 'Goal + Push Message':
-        //  Seek to the second goal
+      case 'Game Boy Color (Screen Scratch Detail)':
         await chat.sdk.publish({
           message: {
             type: 'SEEK',
-            params: { playbackTime: 158000 }
-          },
-          channel: serverVideoControlChannelId
-        })
-        await chat.sdk.publish({
-          message: {
-            type: 'ON_DEMAND_SCRIPT',
-            params: { scriptName: 'push-goal' }
+            params: { playbackTime: 78185 }
           },
           channel: serverVideoControlChannelId
         })
         break
-      case 'Fan excitement':
-        await chat.sdk.publish({
-          message: {
-            type: 'ON_DEMAND_SCRIPT',
-            params: { scriptName: 'fan-excitement' }
-          },
-          channel: serverVideoControlChannelId
-        })
-
-        break
-      case 'Fan frustration':
-        await chat.sdk.publish({
-          message: {
-            type: 'ON_DEMAND_SCRIPT',
-            params: { scriptName: 'fan-frustration' }
-          },
-          channel: serverVideoControlChannelId
-        })
-        break
-      case 'Injury time':
-        //  Seek to 3 minutes remaining
+      case 'Game Boy Advance SP':
         await chat.sdk.publish({
           message: {
             type: 'SEEK',
-            params: { playbackTime: 1146000 }
+            params: { playbackTime: 328835 }
           },
           channel: serverVideoControlChannelId
         })
         break
-      case 'Injury time + Push':
+      case 'DSi':
         await chat.sdk.publish({
           message: {
             type: 'SEEK',
-            params: { playbackTime: 1146000 }
-          },
-          channel: serverVideoControlChannelId
-        })
-        await chat.sdk.publish({
-          message: {
-            type: 'ON_DEMAND_SCRIPT',
-            params: { scriptName: 'push-5mins' }
+            params: { playbackTime: 653035 }
           },
           channel: serverVideoControlChannelId
         })
         break
-      case  'Pause / Resume Bot chat':
+      case '3DS XL':
+        await chat.sdk.publish({
+          message: {
+            type: 'SEEK',
+            params: { playbackTime: 1079565 }
+          },
+          channel: serverVideoControlChannelId
+        })
+        break
+      case 'Jump to Featured Poll End':
+        await chat.sdk.publish({
+          message: {
+            type: 'SEEK',
+            params: { playbackTime: 175000 }
+          },
+          channel: serverVideoControlChannelId
+        })
+        break
+      case 'Pause / Resume Bot chat':
         //  Toggle the bot chat
         await chat.sdk.publish({
           message: {
@@ -138,7 +120,6 @@ export default function SideMenuDataControls ({
           },
           channel: serverVideoControlChannelId
         })
-
         break
       case 'End simulation':
         //  End the game

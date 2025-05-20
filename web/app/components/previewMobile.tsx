@@ -29,6 +29,7 @@ export default function PreviewMobile ({
   logout,
   currentScore
 }) {
+  const [uiScore, setUiScore] = useState<number>(0);
   const [notification, setNotification] = useState<{
     heading: string
     message: string
@@ -44,6 +45,12 @@ export default function PreviewMobile ({
   const pushChannelId = isGuidedDemo ? pushChannelSalesId : pushChannelSelfId
   const defaultWidgetClasses =
     'rounded-lg border-1 border-navy200 bg-white shadow-sm'
+
+  useEffect(() => {
+    if (chat && chat.currentUser && chat.currentUser.custom && typeof chat.currentUser.custom.score === 'number') {
+      setUiScore(chat.currentUser.custom.score);
+    }
+  }, [chat, chat?.currentUser?.id]);
 
   const currentScoreRef = useRef(currentScore)
   useEffect(() => {
@@ -105,7 +112,7 @@ export default function PreviewMobile ({
             }}
           />
         )}
-        <MobileHeader currentScore={currentScore} />
+        <MobileHeader displayedScore={uiScore} chat={chat} logout={logout} />
         <GuideOverlay
           id={'userPoints'}
           guidesShown={guidesShown}
@@ -134,14 +141,17 @@ export default function PreviewMobile ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
-              awardPoints={(points, message) => {
-                AwardPoints(
+              awardPoints={async (points, message) => {
+                const newScore = await AwardPoints(
                   chat,
                   points,
                   message,
-                  currentScoreRef.current,
+                  uiScore,
                   showNewPointsAlert
-                )
+                );
+                if (typeof newScore === 'number') {
+                  setUiScore(newScore);
+                }
               }}
             />
             {dynamicAd && (
@@ -154,14 +164,17 @@ export default function PreviewMobile ({
                 setVisibleGuide={setVisibleGuide}
                 adId={dynamicAd.adId}
                 clickPoints={dynamicAd.clickPoints}
-                onAdClick={(points, adId) => {
-                  AwardPoints(
+                onAdClick={async (points, adId) => {
+                  const newScore = await AwardPoints(
                     chat,
                     points,
                     null,
-                    currentScoreRef.current,
+                    uiScore,
                     showNewPointsAlert
-                  )
+                  );
+                  if (typeof newScore === 'number') {
+                    setUiScore(newScore);
+                  }
                   //  Prevent clicking on both Mobile and tablet previews
                   chat?.sdk.publish({
                     message: {},
@@ -194,14 +207,17 @@ export default function PreviewMobile ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
-              awardPoints={(points, message) => {
-                AwardPoints(
+              awardPoints={async (points, message) => {
+                const newScore = await AwardPoints(
                   chat,
                   points,
                   message,
-                  currentScoreRef.current,
+                  uiScore,
                   showNewPointsAlert
-                )
+                );
+                if (typeof newScore === 'number') {
+                  setUiScore(newScore);
+                }
               }}
             />
             <MatchStatsWidget
@@ -212,6 +228,18 @@ export default function PreviewMobile ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
+              onAdClick={async points => {
+                const newScore = await AwardPoints(
+                  chat,
+                  points,
+                  null,
+                  uiScore,
+                  showNewPointsAlert
+                );
+                if (typeof newScore === 'number') {
+                  setUiScore(newScore);
+                }
+              }}
             />
             <BotWidget
               className={`${defaultWidgetClasses}`}
@@ -221,6 +249,18 @@ export default function PreviewMobile ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
+              onAdClick={async points => {
+                const newScore = await AwardPoints(
+                  chat,
+                  points,
+                  null,
+                  uiScore,
+                  showNewPointsAlert
+                );
+                if (typeof newScore === 'number') {
+                  setUiScore(newScore);
+                }
+              }}
             />
             <LiveCommentaryWidget
               className={`${defaultWidgetClasses}`}
@@ -238,14 +278,17 @@ export default function PreviewMobile ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
-              onAdClick={points => {
-                AwardPoints(
+              onAdClick={async points => {
+                const newScore = await AwardPoints(
                   chat,
                   points,
                   null,
-                  currentScoreRef.current,
+                  uiScore,
                   showNewPointsAlert
-                )
+                );
+                if (typeof newScore === 'number') {
+                  setUiScore(newScore);
+                }
               }}
             />
           </div>
@@ -254,10 +297,10 @@ export default function PreviewMobile ({
     </div>
   )
 
-  function MobileHeader ({ currentScore }) {
+  function MobileHeader ({ displayedScore, chat, logout }) {
     return (
       <div className='flex flex-col w-full px-4 py-[11.5px]'>
-        <UserStatus chat={chat} logout={logout} currentScore={currentScore} />
+        <UserStatus displayedScore={displayedScore} chat={chat} logout={logout} />
         <div className='text-2xl font-bold'>Live Stream</div>
       </div>
     )

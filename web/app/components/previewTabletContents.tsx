@@ -26,9 +26,9 @@ export default function TabletContents ({
   visibleGuide,
   setVisibleGuide,
   logout,
-  currentScore,
   heightConstrained = true
 }) {
+  const [uiScore, setUiScore] = useState<number>(0);
   const [notification, setNotification] = useState<{
     heading: string
     message: string
@@ -45,10 +45,14 @@ export default function TabletContents ({
   const defaultWidgetClasses =
     'rounded-lg border-1 border-navy200 bg-white shadow-md'
 
-  const currentScoreRef = useRef(currentScore)
   useEffect(() => {
-    currentScoreRef.current = currentScore
-  }, [currentScore])
+    if (chat && chat.currentUser && chat.currentUser.custom && typeof chat.currentUser.custom.score === 'number') {
+      setUiScore(chat.currentUser.custom.score);
+    }
+    // This effect should also re-run if chat.currentUser itself changes, e.g. on login
+    // to get the initial score. If streamUpdates were working for UserStatus,
+    // this wouldn't be strictly necessary here but good for initial sync.
+  }, [chat, chat?.currentUser?.id]); // Depend on chat and currentUser.id for re-initialization
 
   useEffect(() => {
     if (!chat) return
@@ -102,7 +106,7 @@ export default function TabletContents ({
           }}
         />
       )}
-      <TabletHeader currentScore={currentScore} />
+      <TabletHeader displayedScore={uiScore} chat={chat} logout={logout} />
       <GuideOverlay
         id={'userPoints'}
         guidesShown={guidesShown}
@@ -136,14 +140,17 @@ export default function TabletContents ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
-              awardPoints={(points, message) => {
-                AwardPoints(
+              awardPoints={async (points, message) => {
+                const newScore = await AwardPoints(
                   chat,
                   points,
                   message,
-                  currentScoreRef.current,
+                  uiScore,
                   showNewPointsAlert
-                )
+                );
+                if (typeof newScore === 'number') {
+                  setUiScore(newScore);
+                }
               }}
             />
             <MatchStatsWidget
@@ -154,6 +161,18 @@ export default function TabletContents ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
+              onAdClick={async points => {
+                const newScore = await AwardPoints(
+                  chat,
+                  points,
+                  null,
+                  uiScore,
+                  showNewPointsAlert
+                );
+                if (typeof newScore === 'number') {
+                  setUiScore(newScore);
+                }
+              }}
             />
             <AdvertsWidget
               className={`${defaultWidgetClasses}`}
@@ -163,14 +182,17 @@ export default function TabletContents ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
-              onAdClick={points => {
-                AwardPoints(
+              onAdClick={async points => {
+                const newScore = await AwardPoints(
                   chat,
                   points,
                   null,
-                  currentScoreRef.current,
+                  uiScore,
                   showNewPointsAlert
-                )
+                );
+                if (typeof newScore === 'number') {
+                  setUiScore(newScore);
+                }
               }}
             />
             <div className='min-h-3'></div>
@@ -186,14 +208,17 @@ export default function TabletContents ({
                 setVisibleGuide={setVisibleGuide}
                 adId={dynamicAd.adId}
                 clickPoints={dynamicAd.clickPoints}
-                onAdClick={(points, adId) => {
-                  AwardPoints(
+                onAdClick={async (points, adId) => {
+                  const newScore = await AwardPoints(
                     chat,
                     points,
                     null,
-                    currentScoreRef.current,
+                    uiScore,
                     showNewPointsAlert
-                  )
+                  );
+                  if (typeof newScore === 'number') {
+                    setUiScore(newScore);
+                  }
                   //  Prevent clicking on both Mobile and tablet previews
                   chat?.sdk.publish({
                     message: {},
@@ -226,14 +251,17 @@ export default function TabletContents ({
               guidesShown={guidesShown}
               visibleGuide={visibleGuide}
               setVisibleGuide={setVisibleGuide}
-              awardPoints={(points, message) => {
-                AwardPoints(
+              awardPoints={async (points, message) => {
+                const newScore = await AwardPoints(
                   chat,
                   points,
                   message,
-                  currentScoreRef.current,
+                  uiScore,
                   showNewPointsAlert
-                )
+                );
+                if (typeof newScore === 'number') {
+                  setUiScore(newScore);
+                }
               }}
             />
             <BotWidget
@@ -260,11 +288,11 @@ export default function TabletContents ({
     </div>
   )
 
-  function TabletHeader ({ currentScore }) {
+  function TabletHeader ({ displayedScore, chat, logout }) {
     return (
       <div className='flex flex-row items-center justify-between w-full px-6 py-[11.5px]'>
         <div className='text-3xl font-bold'>Live Stream</div>
-        <UserStatus chat={chat} logout={logout} currentScore={currentScore} />
+        <UserStatus displayedScore={displayedScore} chat={chat} logout={logout} />
       </div>
     )
   }

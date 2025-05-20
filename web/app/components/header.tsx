@@ -115,7 +115,7 @@ export default function Header ({
         </div>
       </div>
       <div className='text-navy100 font-bold text-2xl'>
-        Live Events Solution Showcase
+        Live Shopping Experience
       </div>
       <div className='flex flex-row gap-4'>
         <div className='flex flex-row'>

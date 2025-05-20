@@ -34,18 +34,18 @@ export default function StreamWidget ({
   } | null>(null)
   const emojiMap = {
     '👏': '🙌',
-    '😢': '😭',
     '😡': '🤬',
     '😮': '🤯',
     '🔥': '😎',
-    '🎉': '🥳'
+    '🎉': '🥳',
+    '💸': '💎'
   }
 
   const [reactions, setReactions] = useState<
     { emoji: string; upgraded: boolean }[]
   >([
     { emoji: '👏', upgraded: false },
-    { emoji: '😢', upgraded: false },
+    { emoji: '💸', upgraded: false },
     { emoji: '😡', upgraded: false },
     { emoji: '😮', upgraded: false },
     { emoji: '🔥', upgraded: false },

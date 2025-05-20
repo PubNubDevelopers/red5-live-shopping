@@ -5,7 +5,8 @@ import GuideOverlay from '../components/guideOverlay'
 import {
   dataControlOccupancyChannelId,
   serverVideoControlChannelId,
-  streamReactionsChannelId
+  streamReactionsChannelId,
+  uiResetChannel
 } from '../data/constants'
 import {
   Chat,
@@ -163,15 +164,48 @@ export default function ChatWidget ({
    */
   useEffect(() => {
     if (!chat || !activeChannelId) return
-    const cleanup = setupActiveChannel()
+
+    // This effect is for when activeChannelId changes and sets up the active chat channel.
+    // It should not handle the global uiResetChannel listener.
+
+    const cleanupPromise = setupActiveChannel();
+    
     return () => {
-      if (cleanup && typeof cleanup.then === 'function') {
-        cleanup.then(fn => {
-          if (fn) fn()
-        })
+      if (cleanupPromise && typeof cleanupPromise.then === 'function') {
+        cleanupPromise.then(fn => {
+          if (fn && typeof fn === 'function') fn();
+        });
       }
-    }
-  }, [activeChannelId, chat])
+    };
+  }, [activeChannelId, chat]);
+
+  // Separate useEffect for the uiResetChannel listener, tied only to `chat` availability.
+  useEffect(() => {
+    if (!chat?.sdk) return; // Check for chat.sdk
+
+    const resetListener = {
+      message: (messageEvent) => {
+        // PubNub SDK message events have `channel` and `message` directly on messageEvent
+        const msgPayload = messageEvent.message as any; 
+        const eventChannel = messageEvent.channel;
+
+        if (eventChannel === uiResetChannel && msgPayload.resetChat === true) {
+          // console.log("[ChatWidget] Received resetChat signal via dedicated listener.");
+          setMessages([]);
+        }
+      }
+    };
+    
+    chat.sdk.addListener(resetListener);
+    chat.sdk.subscribe({ channels: [uiResetChannel] });
+
+    return () => {
+      if (chat?.sdk) { // Ensure chat.sdk still exists on cleanup
+        chat.sdk.removeListener(resetListener);
+        chat.sdk.unsubscribe({ channels: [uiResetChannel] });
+      }
+    };
+  }, [chat]); // Depends only on the chat object
 
   /**
    * Scroll to bottom of messages when messages change

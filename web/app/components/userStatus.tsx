@@ -3,19 +3,26 @@ import { Chat, User } from '@pubnub/chat'
 import Avatar from './avatar'
 import Cup from './icons/cup'
 
-export default function UserStatus ({ chat, logout, currentScore }) {
+export default function UserStatus ({ chat, logout, displayedScore }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
     const [isLoginBypass, setIsLoginBypass] = useState(false)
 
   useEffect(() => {
-    //  Get updates on the current user
-    //  Requires 'User Metadata Events' enabled on the keyset
-    if (!chat) return
-    if (!chat.currentUser) return
+    if (!chat) {
+      return
+    }
+    if (!chat.currentUser) {
+      return
+    }
     setCurrentUser(chat.currentUser)
-    return chat.currentUser.streamUpdates(updatedUser => {
+    const unsubscribe = chat.currentUser.streamUpdates(updatedUser => {
       setCurrentUser(updatedUser)
     })
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [chat])
 
   useEffect(() => {
@@ -31,7 +38,7 @@ export default function UserStatus ({ chat, logout, currentScore }) {
         <div className='flex flex-row gap-1 items-center'>
           <Cup className={''} width={20} height={20} />
           <div className='text-neutral700 text-base font-bold'>
-            {currentScore}
+            {displayedScore !== undefined ? displayedScore : (currentUser?.custom?.score || 0)}
           </div>
         </div>
         <div className='border-1 border-navy200 h-full'></div>

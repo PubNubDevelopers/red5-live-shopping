@@ -50,9 +50,19 @@ export async function AwardPoints(
     ? customMessage
     : `Point${Math.abs(pointsToAward) > 1 ? "s" : ""} Awarded`;
   awardPointsAnimation(pointsToAward, message);
-  await chat.currentUser.update({
-    custom: {
-      score: newScore,
-    },
-  });
+  try {
+    await chat.currentUser.update({
+      custom: {
+        // Note: ensure other custom fields are preserved if they exist
+        // If chat.currentUser.custom could have other fields, spread them first:
+        // ...chat.currentUser.custom,
+        score: newScore,
+      },
+    });
+    return newScore; // Return the new score
+  } catch (e) {
+    console.error("Error updating score in App Context:", e);
+    // Optionally, return currentScore or handle error to prevent UI update on failure
+    return currentScore; 
+  }
 }
