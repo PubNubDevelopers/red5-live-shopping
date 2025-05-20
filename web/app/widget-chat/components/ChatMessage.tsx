@@ -104,6 +104,19 @@ export default function ChatMessage ({
     return ''
   }
 
+  // Determine if the message is a question
+  const fullMessageText = message
+    .getMessageElements()
+    .map(part =>
+      part.type === 'text'
+        ? part.content.text
+        : part.type === 'mention'
+        ? part.content.name
+        : ''
+    )
+    .join('');
+  const isQuestionMessage = fullMessageText.trim().endsWith('?');
+
   return (
     <div
       className={`mb-6 flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
@@ -129,7 +142,11 @@ export default function ChatMessage ({
       <div
         ref={ref}
         className={`group relative max-w-[80%] flex items-end rounded-lg px-4 py-[4px] gap-[16px] ${
-          isOwnMessage ? 'bg-navy900 text-white' : 'bg-navy100'
+          isQuestionMessage
+            ? 'bg-blue-200 text-gray-800' // Light blue for questions
+            : isOwnMessage
+            ? 'bg-navy900 text-white' // Default for own messages
+            : 'bg-navy100' // Default for other messages
         }`}
       >
         <div

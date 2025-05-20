@@ -20,7 +20,7 @@ import MessageInput from './components/MessageInput'
 
 // Define channel constants
 const mainChatChannelId = 'game.chat';
-const questionsChannelId = 'game.chat.questions';
+// const questionsChannelId = 'game.chat.questions'; // Removed
 
 interface ChatWidgetProps {
   className: string
@@ -56,7 +56,7 @@ export default function ChatWidget ({
 
   // Message state - NEW: Separate stores for all and question messages
   const [allMessages, setAllMessages] = useState<Message[]>([])
-  const [questionMessages, setQuestionMessages] = useState<Message[]>([])
+  // const [questionMessages, setQuestionMessages] = useState<Message[]>([]) // Removed
   const [displayedMessages, setDisplayedMessages] = useState<Message[]>([]) // Messages currently shown in UI
   const [messageInput, setMessageInput] = useState('')
 
@@ -75,7 +75,7 @@ export default function ChatWidget ({
   const [activeChannelRestrictions, setActiveChannelRestrictions] =
     useState<Restriction | null>(null)
 
-  // State for the question filter
+  // State for the question filter - RE-INTRODUCED
   const [isQuestionFilterActive, setIsQuestionFilterActive] = useState(false)
 
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -130,26 +130,41 @@ export default function ChatWidget ({
   }, [chat, userMentioned]); // Removed activeChannelId from here to avoid loops if fetchChannels was also setting it.
 
   /**
-   * Effect 2: Switch activeChannelId based on filter toggle.
+   * Effect 2: Switch activeChannelId based on filter toggle. - REMOVED as we only use mainChatChannelId now
    */
-  useEffect(() => {
-    if (!chat) return;
-    const targetChannelId = isQuestionFilterActive ? questionsChannelId : mainChatChannelId;
-    console.log(`[ChatWidget] Effect 2: Filter changed or chat ready. Target channel ID: ${targetChannelId}`);
-    setActiveChannelId(targetChannelId);
-  }, [isQuestionFilterActive, chat]);
+  // useEffect(() => {
+  //   if (!chat) return;
+  //   const targetChannelId = isQuestionFilterActive ? questionsChannelId : mainChatChannelId;
+  //   console.log(`[ChatWidget] Effect 2: Filter changed or chat ready. Target channel ID: ${targetChannelId}`);
+  //   setActiveChannelId(targetChannelId);
+  // }, [isQuestionFilterActive, chat]);
 
   /**
    * Effect 3: Update displayedMessages based on active filter and data stores.
    */
   useEffect(() => {
-    console.log(`[ChatWidget] Effect 3: Updating displayedMessages. Filter active: ${isQuestionFilterActive}`);
+    // console.log(`[ChatWidget] Effect 3: Updating displayedMessages. Filter active: ${isQuestionFilterActive}`); // Logging removed
     if (isQuestionFilterActive) {
-      setDisplayedMessages(questionMessages);
+      setDisplayedMessages(
+        allMessages.filter(msg => {
+          // Reconstruct message text to check for question mark
+          const fullMessageText = msg
+            .getMessageElements()
+            .map(part =>
+              part.type === 'text'
+                ? part.content.text
+                : part.type === 'mention'
+                ? part.content.name
+                : ''
+            )
+            .join('');
+          return fullMessageText.trim().endsWith('?');
+        })
+      );
     } else {
       setDisplayedMessages(allMessages);
     }
-  }, [isQuestionFilterActive, allMessages, questionMessages]);
+  }, [allMessages, isQuestionFilterActive]); // Dependency on isQuestionFilterActive re-added
 
   useEffect(() => {
     if (!chat || !activeChannel) return
@@ -197,7 +212,7 @@ export default function ChatWidget ({
   useEffect(() => {
     if (!chat || !activeChannelId) {
       console.log("[ChatWidget] Effect 4: Skipping setupActiveChannel - no chat or activeChannelId.");
-      setActiveChannel(null); // Ensure activeChannel is null if conditions aren't met
+      setActiveChannel(null);
       return;
     }
     console.log(`[ChatWidget] Effect 4: activeChannelId changed to '${activeChannelId}'. Calling setupActiveChannel.`);
@@ -207,7 +222,7 @@ export default function ChatWidget ({
       if (cleanupPromise && typeof cleanupPromise.then === 'function') {
         cleanupPromise.then(fn => {
           if (fn && typeof fn === 'function') fn();
-        });
+        }).catch(e => console.error("[ChatWidget] Effect 4: Error in cleanup promise:", e));
       }
     };
   }, [activeChannelId, chat]); // This is the key effect for channel connection
@@ -225,7 +240,7 @@ export default function ChatWidget ({
         if (eventChannel === uiResetChannel && msgPayload.resetChat === true) {
           console.log("[ChatWidget] Received resetChat signal. Clearing all message stores.");
           setAllMessages([])
-          setQuestionMessages([])
+          // setQuestionMessages([]) // Removed
         }
       }
     }
@@ -306,8 +321,8 @@ export default function ChatWidget ({
    */
   const setupActiveChannel = async () => {
     if (!chat || !activeChannelId) {
-      console.error("[setupActiveChannel] Guard hit: No chat or activeChannelId. This should not happen if Effect 4 is working.");
-      setActiveChannel(null); // Explicitly nullify
+      console.error("[setupActiveChannel] Guard hit: No chat or activeChannelId.");
+      setActiveChannel(null);
       return () => {};
     }
 
@@ -316,49 +331,64 @@ export default function ChatWidget ({
       const channel = await chat.getChannel(activeChannelId);
 
       if (!channel) {
-        console.error(`[setupActiveChannel] chat.getChannel('${activeChannelId}') returned null or undefined. Cannot setup channel.`);
-        setActiveChannel(null); // CRITICAL: Ensure activeChannel is null if no channel object
-        // Clear relevant message store if channel can't be fetched
-        if (activeChannelId === mainChatChannelId) setAllMessages([]);
-        else if (activeChannelId === questionsChannelId) setQuestionMessages([]);
-        return () => {}; // Return empty cleanup
+        console.error(`[setupActiveChannel] chat.getChannel('${activeChannelId}') returned null or undefined.`);
+        setActiveChannel(null);
+        setAllMessages([]); // Always clear allMessages if channel fails for mainChatChannelId
+        return () => {};
       }
 
-      console.log(`[setupActiveChannel] Successfully fetched channel object for '${activeChannelId}'. Setting active channel.`);
-      setActiveChannel(channel); // Set the active channel object
+      console.log(`[setupActiveChannel] Successfully fetched channel object for '${activeChannelId}'.`);
+      setActiveChannel(channel);
 
       let unsubscribeMessages = () => {};
-      const messageLimit = 40;
+      const messageLimit = 50; // Consistent limit
 
-      if (activeChannelId === mainChatChannelId) {
-        if (allMessages.length === 0) {
-          console.log(`[setupActiveChannel] Fetching history for ${mainChatChannelId}`);
-          const history = await channel.getHistory({ count: 50 });
-          setAllMessages(history.messages.reverse() || []);
-        }
-        unsubscribeMessages = channel.connect(async (message: Message) => {
-          setAllMessages(prevMessages => {
-            const messageExists = prevMessages.some(m => m.timetoken === message.timetoken);
-            if (messageExists) return prevMessages;
-            const newMessages = [...prevMessages, message];
-            return newMessages.slice(-messageLimit);
-          });
-        });
-      } else if (activeChannelId === questionsChannelId) {
-        if (questionMessages.length === 0) {
-          console.log(`[setupActiveChannel] Fetching history for ${questionsChannelId}`);
-          const history = await channel.getHistory({ count: 50 });
-          setQuestionMessages(history.messages || []);
-        }
-        unsubscribeMessages = channel.connect(async (message: Message) => {
-          setQuestionMessages(prevMessages => {
-            const messageExists = prevMessages.some(m => m.timetoken === message.timetoken);
-            if (messageExists) return prevMessages;
-            const newMessages = [...prevMessages, message];
-            return newMessages.slice(-messageLimit);
-          });
-        });
+      // Only setup for mainChatChannelId now
+      // if (activeChannelId === mainChatChannelId) { // Condition no longer needed
+      console.log(`[setupActiveChannel] Setting up main channel: ${mainChatChannelId}`);
+      if (allMessages.length === 0) {
+        console.log(`[setupActiveChannel] Fetching history for ${mainChatChannelId}`);
+        const history = await channel.getHistory({ count: messageLimit });
+        setAllMessages((history.messages || []).reverse());
       }
+      unsubscribeMessages = channel.connect(async (message: Message) => {
+        console.log(`[ChatWidget] MAIN CHAT - New message received. Timetoken: ${message.timetoken}. Content:`, JSON.stringify(message.content));
+        setAllMessages(prevMessages => {
+          if (prevMessages.some(m => m.timetoken === message.timetoken)) return prevMessages;
+          return [...prevMessages, message].slice(-messageLimit);
+        });
+      });
+      // } else if (activeChannelId === questionsChannelId) { // All this block removed
+      //   console.log(`[setupActiveChannel] Setting up questions channel: ${questionsChannelId}`);
+      //   if (questionMessages.length === 0) {
+      //     console.log(`[setupActiveChannel] Fetching history for ${questionsChannelId}`);
+      //     const history = await channel.getHistory({ count: messageLimit });
+      //     console.log(`[setupActiveChannel] History for ${questionsChannelId} received:`, history.messages);
+      //     setQuestionMessages(history.messages || []); // No reverse for questions, assuming history is oldest to newest
+      //   }
+      //   
+      //   console.log(`[setupActiveChannel] Subscribing (channel.connect) to ${questionsChannelId} for real-time messages.`);
+      //   unsubscribeMessages = channel.connect(async (message: Message) => {
+      //     // DETAILED LOGS FOR QUESTIONS CHANNEL REAL-TIME MESSAGES
+      //     console.log(`[ChatWidget] QUESTIONS CHANNEL ('${questionsChannelId}') - Connect callback fired!`);
+      //     console.log(`[ChatWidget] QUESTIONS CHANNEL - Received message object:`, message);
+      //     console.log(`[ChatWidget] QUESTIONS CHANNEL - Message content:`, JSON.stringify(message.content));
+      //     console.log(`[ChatWidget] QUESTIONS CHANNEL - Message timetoken: ${message.timetoken}`);
+      //     console.log(`[ChatWidget] QUESTIONS CHANNEL - Current questionMessages count: ${questionMessages.length}`); // Log current length before update
+      //
+      //     setQuestionMessages(prevMessages => {
+      //       console.log(`[ChatWidget] QUESTIONS CHANNEL - Inside setQuestionMessages. Prev count: ${prevMessages.length}`);
+      //       const messageExists = prevMessages.some(m => m.timetoken === message.timetoken);
+      //       if (messageExists) {
+      //         console.log(`[ChatWidget] QUESTIONS CHANNEL - Duplicate message (timetoken: ${message.timetoken}). Ignoring.`);
+      //         return prevMessages;
+      //       }
+      //       const newMessages = [...prevMessages, message];
+      //       console.log(`[ChatWidget] QUESTIONS CHANNEL - Added new message. New temp count: ${newMessages.length}`);
+      //       return newMessages.slice(-messageLimit);
+      //     });
+      //   });
+      // }
       
       // Occupancy updates from Data Controls
       const occupancyChannel = chat.sdk.channel(dataControlOccupancyChannelId);
@@ -368,22 +398,22 @@ export default function ChatWidget ({
       };
       occupancySubscription.subscribe();
 
-      const serverVideoControlChannel = chat.sdk.channel(serverVideoControlChannelId);
-      const serverVideoControlSubscription = serverVideoControlChannel.subscription({
+      const serverVideoControlChannelSub = chat.sdk.channel(serverVideoControlChannelId);
+      const serverVideoControlSubscription = serverVideoControlChannelSub.subscription({
           receivePresenceEvents: false
       });
       serverVideoControlSubscription.onMessage = (messageEvent: any) => {
           if (messageEvent.message.type === 'START_STREAM') {
               console.log("[setupActiveChannel] START_STREAM received, clearing message stores.");
               setAllMessages([]);
-              setQuestionMessages([]);
+              // setQuestionMessages([]); // Removed
           }
       };
       serverVideoControlSubscription.subscribe();
 
       //  For consistency with the live stream, use the reactions channel for real occupancy
-      const reactionsChannel = chat.sdk.channel(streamReactionsChannelId);
-      const reactionsSubscription = reactionsChannel.subscription({ receivePresenceEvents: true });
+      const reactionsChannelSub = chat.sdk.channel(streamReactionsChannelId);
+      const reactionsSubscription = reactionsChannelSub.subscription({ receivePresenceEvents: true });
       reactionsSubscription.onPresence = (presenceEvent: any) => {
         if (presenceEvent?.occupancy > 0) {
           setRealOccupancy(presenceEvent.occupancy);
@@ -405,10 +435,8 @@ export default function ChatWidget ({
       };
     } catch (error) {
       console.error(`[setupActiveChannel] Error setting up channel '${activeChannelId}':`, error);
-      setActiveChannel(null); // Ensure activeChannel is null on error
-      if (activeChannelId === mainChatChannelId) setAllMessages([]);
-      else if (activeChannelId === questionsChannelId) setQuestionMessages([]);
-      else { setAllMessages([]); setQuestionMessages([]); }
+      setActiveChannel(null);
+      setAllMessages([]); // Always clear allMessages if channel setup fails
       return () => {};
     }
   };
@@ -660,7 +688,7 @@ export default function ChatWidget ({
             isGuidedDemo={isGuidedDemo}
           />
 
-          {/* Question Filter Toggle Button */}
+          {/* Question Filter Toggle Button - RE-INTRODUCED */}
           <button
             onClick={() => setIsQuestionFilterActive(prev => !prev)}
             className="w-full p-2 mt-1 text-xs text-white bg-gray-700 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
