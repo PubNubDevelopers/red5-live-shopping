@@ -35,8 +35,8 @@ export default function SideMenuDataControls ({
   const simulationNames = [
     'Select',
     'Start / restart simulation',
-    'Game Boy Color (Intro)',
-    'Game Boy Color (Screen Scratch Detail)',
+    'GB Color (Intro)',
+    'GB Color (Scratch)',
     'Game Boy Advance SP',
     'DSi',
     '3DS XL',
@@ -58,7 +58,7 @@ export default function SideMenuDataControls ({
           channel: serverVideoControlChannelId
         })
         break
-      case 'Game Boy Color (Intro)':
+      case 'GB Color (Intro)':
         await chat.sdk.publish({
           message: {
             type: 'SEEK',
@@ -67,11 +67,11 @@ export default function SideMenuDataControls ({
           channel: serverVideoControlChannelId
         })
         break
-      case 'Game Boy Color (Screen Scratch Detail)':
+      case 'GB Color (Scratch)':
         await chat.sdk.publish({
           message: {
             type: 'SEEK',
-            params: { playbackTime: 78185 }
+            params: { playbackTime: 72185 }
           },
           channel: serverVideoControlChannelId
         })

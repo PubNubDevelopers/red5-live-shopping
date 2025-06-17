@@ -127,7 +127,7 @@ export default function SalesIntroPage ({
       <div className='pl-[10%] pt-[5%] xl:pt-[10%]'>
         <HomePagePubNubLogo />
         <div className='text-navy100 font-extrabold text-[64px] pt-8'>
-          Live Events Solution Showcase
+          Live Shopping Solution Showcase
         </div>
 
         <div className='pt-[50px]'>
@@ -141,20 +141,14 @@ export default function SalesIntroPage ({
                   Activity detected in this demo environment
                 </div>
                 <div className=''>
-                  If this was not you, please consider using a different
-                  environment.
+                  If this was not you, the environment is currently be in use by someone else.
                 </div>
                 <div className='font-semibold'>
                   Available environments:
                   <ul className='px-4 pt-1 list-disc'>
                     <li>
                       <a href={`${urls.hostedUrls.salesLed1}`}>
-                        Demo Environment 1
-                      </a>
-                    </li>
-                    <li>
-                      <a href={`${urls.hostedUrls.salesLed2}`}>
-                        Demo Environment 2
+                        Demo Environment
                       </a>
                     </li>
                   </ul>

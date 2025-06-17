@@ -459,6 +459,7 @@ async function publishMessage(channel, message, persistInHistory = false) {
       // Set User ID
       let userId = message.user || "other";
       pubnub.setUUID(userId);
+      console.log("publishing message: ", message);
       await pubnub.publish({
         channel: channel,
         message: message,
@@ -537,11 +538,15 @@ async function runLoop() {
     // Publish the event
 
     if (!(eventObj.action.channel === "game.chat" && !shouldSendChatMessages)) {
-      await publishMessage(
-        eventObj.action.channel,
-        eventObj.action.data,
-        !!eventObj.persistInHistory
-      );
+      try {
+        publishMessage(
+          eventObj.action.channel,
+          eventObj.action.data,
+          !!eventObj.persistInHistory
+        );
+      } catch (err) {
+        console.error("Error publishing message:", err);
+      }
     }
 
     scriptIndex++;
@@ -550,6 +555,7 @@ async function runLoop() {
   // 2. Send a periodic video status message
   if (!intervalId) return;
 
+  console.log('publishing video status at time:', currentTime);
   await publishVideoStatus();
 
   // 3. Increment the current time
@@ -581,6 +587,7 @@ const startLoop = () => {
   console.log("Starting loop...");
   intervalId = setInterval(async () => {
     try {
+      //currentTime += MS_INTERVAL;
       await runLoop();
     } catch (err) {
       console.error("Error in runLoop:", err);

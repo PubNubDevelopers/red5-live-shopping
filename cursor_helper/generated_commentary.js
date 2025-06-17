@@ -19,7 +19,7 @@ exports.commentary = [
     action: {
       channel: 'game.commentary',
       data: {
-        text: 'to another talk shop live stream.',
+        text: 'to another live stream.',
         timeCode: '00:26'
       }
     }
