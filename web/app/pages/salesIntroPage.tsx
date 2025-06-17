@@ -143,16 +143,6 @@ export default function SalesIntroPage ({
                 <div className=''>
                   If this was not you, the environment is currently be in use by someone else.
                 </div>
-                <div className='font-semibold'>
-                  Available environments:
-                  <ul className='px-4 pt-1 list-disc'>
-                    <li>
-                      <a href={`${urls.hostedUrls.salesLed1}`}>
-                        Demo Environment
-                      </a>
-                    </li>
-                  </ul>
-                </div>
               </div>
             </div>
           )}
@@ -160,7 +150,7 @@ export default function SalesIntroPage ({
 
         <div className='flex flex-row gap-6 pt-[62px] pr-6 pb-6 overflow-auto'>
           <HomePageTemplateTile
-            instanceTitle={`Demo Environment: ${process.env.NEXT_PUBLIC_ENVIRONMENT_NUMBER ?? ''}`}
+            instanceTitle={`Demo Environment ${process.env.NEXT_PUBLIC_ENVIRONMENT_NUMBER ?? ''}`}
             title={'Accept & Continue'}
             subtitle={
               'This application uses a shared demo environment, if you modify anything on the backend, such as Illuminate Objects, please return them to their original state after using this demo.'

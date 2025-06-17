@@ -22,7 +22,7 @@ export default function BotWidget ({
     index = useRef(0)
   //  Used if there is some issue communicating with PN Functions (e.g. Functions not set up on this keyset)
   const predeterminedAnswer =
-    'PubNub Functions allows you to add code into PubNub to route, filter, aggregate, and augment messages.  Example use cases for live events include:\n\n* Use AI to process messages\n* Translate messages in real-time into multiple languages\n* Moderate messages for profanity or undesired behavior\n* Re-route important messages and signals for immediate action\n* Determine user sentiment in real-time and track sentiment as the event progresses\n\nAll PubNub Functions scale automatically and are proven to handle any size event.'
+    'PubNub Functions allows you to add code into PubNub to route, filter, aggregate, and augment messages.  Example use cases for live shopping include:\n\n* Use AI to process messages\n* Translate messages in real-time into multiple languages\n* Moderate messages for profanity or undesired behavior\n* Re-route important messages and signals for immediate action\n* Determine user sentiment in real-time and track sentiment as the stream progresses\n\nAll PubNub Functions scale automatically and are proven to handle any size event.'
 
   async function submitQuestion (e) {
     e.preventDefault()

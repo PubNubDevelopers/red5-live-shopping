@@ -110,6 +110,7 @@ export default function MatchStatsWidget ({
 
     // Fetch last message to set initial state
     // Ensure chat.currentStreamTimeOffset is available and accurate if used in processReceivedMessage for fetch
+    /*
     if (chat.sdk.getSubscribedChannels().includes(matchStatsChannelId)) { // Check if already subscribed by this or another component
       chat.sdk
         .fetchMessages({
@@ -134,7 +135,7 @@ export default function MatchStatsWidget ({
           setFeaturedProduct(null);
           setIsProductDetailsVisible(false);
         });
-    }
+    }*/
 
     return () => {
       if (chat?.sdk) {

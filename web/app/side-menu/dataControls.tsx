@@ -40,7 +40,7 @@ export default function SideMenuDataControls ({
     'Game Boy Advance SP',
     'DSi',
     '3DS XL',
-    'Jump to Featured Poll End',
+    'End of Featured Poll',
     'Pause / Resume Bot chat',
     'End simulation'
   ]
@@ -103,7 +103,7 @@ export default function SideMenuDataControls ({
           channel: serverVideoControlChannelId
         })
         break
-      case 'Jump to Featured Poll End':
+      case 'End of Featured Poll':
         await chat.sdk.publish({
           message: {
             type: 'SEEK',

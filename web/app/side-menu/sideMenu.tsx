@@ -219,7 +219,7 @@ function SalesInstructionsToSwitchAccount ({ isGuidedDemo, instructionType }) {
           <div className='font-semibold'>Sales Only</div>
           <div className=''>
             {instructionType == 'illuminate'
-              ? `Switch organizations to '${urls.instructions.account}', then Illuminate dashboards and actions are named 'Showcase: Live Events${typeof window !== 'undefined' && window.location.href.includes(urls.hostedUrls.salesLed2) ? ' 2' : ''}...'`
+              ? `Switch organizations to '${urls.instructions.account}', then Illuminate dashboards and actions are named 'Showcase: Live Shopping${typeof window !== 'undefined' && window.location.href.includes(urls.hostedUrls.salesLed2) ? ' 2' : ''}...'`
               : `Switch organizations to '${urls.instructions.account}', select the '${urls.instructions.appName}' app, then the '${urls.instructions.keysetName}${typeof window !== 'undefined' && window.location.href.includes(urls.hostedUrls.salesLed2) ? '-2' : ''}' keyset`}
           </div>
         </div>
@@ -325,24 +325,6 @@ function SideMenuIlluminate ({ isGuidedDemo }) {
           isGuidedDemo
             ? urls.illuminate.customEmoji.salesLed
             : urls.illuminate.customEmoji.selfLed
-        }
-      />
-      <TextWithLinkButton
-        label={'Show dynamic ads'}
-        buttonText={'View'}
-        url={
-          isGuidedDemo
-            ? urls.illuminate.dynamicAd.salesLed
-            : urls.illuminate.dynamicAd.selfLed
-        }
-      />
-      <TextWithLinkButton
-        label={'Dynamic poll'}
-        buttonText={'View'}
-        url={
-          isGuidedDemo
-            ? urls.illuminate.dynamicPoll.salesLed
-            : urls.illuminate.dynamicPoll.selfLed
         }
       />
       <TextWithLinkButton
