@@ -143,7 +143,7 @@ export default function ChatMessage ({
         ref={ref}
         className={`group relative max-w-[80%] flex items-end rounded-lg px-4 py-[4px] gap-[16px] ${
           isQuestionMessage
-            ? 'bg-blue-200 text-gray-800' // Light blue for questions
+            ? 'bg-navy300 text-gray-800' // Light blue for questions
             : isOwnMessage
             ? 'bg-navy900 text-white' // Default for own messages
             : 'bg-navy100' // Default for other messages

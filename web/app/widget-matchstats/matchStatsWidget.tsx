@@ -225,7 +225,7 @@ export default function MatchStatsWidget ({
               href={featuredProduct.callToAction.link} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="pointer-events-none mt-6 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out w-full text-center no-underline"
+              className="pointer-events-none mt-6 inline-block bg-navy600 hover:bg-navy700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-150 ease-in-out w-full text-center no-underline"
             >
               {featuredProduct.callToAction.text}
             </a>

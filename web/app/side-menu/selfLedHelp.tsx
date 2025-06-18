@@ -20,7 +20,7 @@ function HelpButton ({ buttonText, url, hasGlow }) {
     <a href={`${url}`} target='_blank' className={`no-underline`}>
       <div
         className={`w-80 px-6 py-3 text-lg text-neutral50 font-semibold text-center rounded-md border-1 border-navy600 hover:bg-navy800 cursor-pointer ${
-          hasGlow && 'shadow-[0px_4px_18px_0px_rgba(88,_156,_255,_0.8)]'
+          hasGlow && 'shadow-[0px_4px_18px_0px_rgba(76,_195,_161,_0.8)]'
         }`}
       >
         {buttonText}

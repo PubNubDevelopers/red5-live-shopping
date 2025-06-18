@@ -123,7 +123,7 @@ export default function SalesIntroPage ({
   }
 
   return (
-    <div className='h-fit min-h-screen w-screen min-w-screen bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-[#334169] to-navy900 select-none'>
+    <div className='h-fit min-h-screen w-screen min-w-screen bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-[#184A2C] to-navy900 select-none'>
       <div className='pl-[10%] pt-[5%] xl:pt-[10%]'>
         <HomePagePubNubLogo />
         <div className='text-navy100 font-extrabold text-[64px] pt-8'>

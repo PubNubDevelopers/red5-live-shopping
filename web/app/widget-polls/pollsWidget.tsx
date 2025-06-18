@@ -237,7 +237,7 @@ function ActiveTriviaDisplay({ trivia, onVote, onBack }: { trivia: TriviaQuestio
 
         return (
           <div key={option.id} className={`my-1 p-2 border rounded-md 
-            ${isUserVotedThis && !trivia.isEnded ? 'bg-blue-100 border-blue-300' : ''}
+            ${isUserVotedThis && !trivia.isEnded ? 'bg-navy100 border-navy300' : ''}
             ${trivia.isEnded && isCorrect ? 'bg-green-100 border-green-400' : ''}
             ${trivia.isEnded && isUserVotedThis && !isCorrect ? 'bg-red-100 border-red-400' : ''}
             ${!trivia.userHasVoted && !trivia.isEnded ? 'cursor-pointer hover:bg-gray-100' : 'cursor-default'}
@@ -257,7 +257,7 @@ function ActiveTriviaDisplay({ trivia, onVote, onBack }: { trivia: TriviaQuestio
       {trivia.isEnded && trivia.userChoiceId === null && <p className="text-xs mt-2">Trivia ended. You did not vote.</p>}
       {trivia.isEnded && (
          <button 
-            className='mt-3 px-3 py-1.5 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 disabled:opacity-50'
+            className='mt-3 px-3 py-1.5 text-xs font-medium text-center text-white bg-navy700 rounded-lg hover:bg-navy800 focus:ring-4 focus:outline-none focus:ring-navy300 disabled:opacity-50'
             onClick={onBack}
           >Back to Trivia List</button>
       )}
