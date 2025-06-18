@@ -66,5 +66,6 @@ export const urls = {
     selfLed: "",
     //  The following URLs are ONLY designed for use by the PubNub sales team
     salesLed1: "./",
+    salesLed2: "./"
   }
 };
