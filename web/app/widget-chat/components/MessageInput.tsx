@@ -79,17 +79,19 @@ export default function MessageInput ({
     }
 
     // Check for @ symbol
-    const lastAtIndex = value.lastIndexOf('@')
-    if (lastAtIndex !== -1) {
-      const query = value.slice(lastAtIndex + 1)
-      setMentionQuery(query)
-      setMentionStartIndex(lastAtIndex)
-      setShowMentions(true)
-    } else {
-      setShowMentions(false)
-      setMentionQuery('')
-      setMentionStartIndex(-1)
-    }
+    //  Tagging functionality removed for now, since it is not compatible with the
+    //  function used for moderation.
+    // const lastAtIndex = value.lastIndexOf('@')
+    // if (lastAtIndex !== -1) {
+    //   const query = value.slice(lastAtIndex + 1)
+    //   setMentionQuery(query)
+    //   setMentionStartIndex(lastAtIndex)
+    //   setShowMentions(true)
+    // } else {
+    //   setShowMentions(false)
+    //   setMentionQuery('')
+    //   setMentionStartIndex(-1)
+    // }
   }
 
   const handleMentionSelect = (user: User) => {

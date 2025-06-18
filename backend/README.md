@@ -1,4 +1,4 @@
-# Backend Data Generator for Live Events Demo
+# Backend Data Generator for Live Shopping Demo
 
 ```
 cd backend

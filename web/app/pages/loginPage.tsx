@@ -206,7 +206,7 @@ export default function LoginPage ({
     setLoginPageShown(false)
   }
   return (
-    <div className='flex items-center justify-center h-fit min-h-screen w-screen min-w-screen bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-[#334169] to-navy900 select-none'>
+    <div className='flex items-center justify-center h-fit min-h-screen w-screen min-w-screen bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-[#184A2C] to-navy900 select-none'>
       {!isGuidedDemo && isLoginBypass ? (
         <div className='flex flex-col gap-20 items-center text-navy100'>
           <div className='text-5xl font-extrabold'>Loading...</div>

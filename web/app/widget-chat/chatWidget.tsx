@@ -78,6 +78,9 @@ export default function ChatWidget ({
   // State for the question filter - RE-INTRODUCED
   const [isQuestionFilterActive, setIsQuestionFilterActive] = useState(false)
 
+  // Check if this is an overlay mode (transparent background)
+  const isOverlayMode = className.includes('bg-transparent')
+
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   /**
@@ -263,6 +266,16 @@ export default function ChatWidget ({
     scrollToBottom()
   }, [displayedMessages])
 
+  useEffect(() => {
+    if (allMessages.length > 0) {
+      const lastMessageUser = allMessages[allMessages.length - 1].userId
+      if (lastMessageUser.startsWith('user-')) {
+        Message.streamUpdatesOn(allMessages, setAllMessages)
+      }
+    }
+    scrollToBottom()
+  }, [allMessages])
+
   /**
    * Fetches all available channels and organizes them by type
    */
@@ -352,7 +365,7 @@ export default function ChatWidget ({
         setAllMessages((history.messages || []).reverse());
       }
       unsubscribeMessages = channel.connect(async (message: Message) => {
-        console.log(`[ChatWidget] MAIN CHAT - New message received. Timetoken: ${message.timetoken}. Content:`, JSON.stringify(message.content));
+        //console.log(`[ChatWidget] MAIN CHAT - New message received. Timetoken: ${message.timetoken}. Content:`, JSON.stringify(message.content));
         setAllMessages(prevMessages => {
           if (prevMessages.some(m => m.timetoken === message.timetoken)) return prevMessages;
           return [...prevMessages, message].slice(-messageLimit);
@@ -539,36 +552,38 @@ export default function ChatWidget ({
 
   return (
     <div
-      className={`${className} w-full h-fit`}
+      className={`${className} w-full ${isOverlayMode ? 'h-fit' : 'h-fit'}`}
       onClick={e => backgroundClicked(e)}
     >
-      <GuideOverlay
-        id={'chatGuide'}
-        guidesShown={guidesShown}
-        visibleGuide={visibleGuide}
-        setVisibleGuide={setVisibleGuide}
-        text={
-          <span>
-            The <span className='font-semibold'>PubNub Chat SDK</span> provides
-            you with everything you need to develop a fully featured,
-            production-ready chat component:
-            <ul className='list-disc list-inside my-2'>
-              <li>Public, private, and direct channels</li>
-              <li>Send and receive real-time messages</li>
-              <li>Add emoji reactions to messages</li>
-              <li>Track whether users are online or offline</li>
-            </ul>
-            Also: Integration with AI and Moderation through{' '}
-            <span className='font-semibold'>BizOps Workspace</span> and{' '}
-            <span className='font-semibold'>Functions</span>
-          </span>
-        }
-        xOffset={`${isMobilePreview ? 'left-[0px]' : '-left-[60px]'}`}
-        yOffset={'top-[10px]'}
-        flexStyle={'flex-row items-start'}
-      />
+      {!isOverlayMode && (
+        <GuideOverlay
+          id={'chatGuide'}
+          guidesShown={guidesShown}
+          visibleGuide={visibleGuide}
+          setVisibleGuide={setVisibleGuide}
+          text={
+            <span>
+              The <span className='font-semibold'>PubNub Chat SDK</span> provides
+              you with everything you need to develop a fully featured,
+              production-ready chat component:
+              <ul className='list-disc list-inside my-2'>
+                <li>Public, private, and direct channels</li>
+                <li>Send and receive real-time messages</li>
+                <li>Add emoji reactions to messages</li>
+                <li>Track whether users are online or offline</li>
+              </ul>
+              Also: Integration with AI and Moderation through{' '}
+              <span className='font-semibold'>BizOps Workspace</span> and{' '}
+              <span className='font-semibold'>Functions</span>
+            </span>
+          }
+          xOffset={`${isMobilePreview ? 'left-[0px]' : '-left-[60px]'}`}
+          yOffset={'top-[10px]'}
+          flexStyle={'flex-row items-start'}
+        />
+      )}
 
-      {!activeChannel && (
+      {!activeChannel && !isOverlayMode && (
         <div className='text-lg border-b pb-2 flex items-center bg-navy900 overflow-hidden rounded-t px-[16px] py-[12px] text-white text-[16px] font-[600] leading-[24px] h-[56px]'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -610,7 +625,7 @@ export default function ChatWidget ({
         </div>
       )}
 
-      {activeChannel && (
+      {activeChannel && !isOverlayMode && (
         <div className='text-lg border-b pb-2 flex items-center bg-navy900 overflow-hidden rounded-t px-[16px] py-[12px] text-white text-[16px] font-[600] leading-[24px] h-[56px]'>
           <div
             className={'rounded-full w-[32px] h-[32px] !bg-cover bg-gray-100'}
@@ -642,59 +657,91 @@ export default function ChatWidget ({
       )}
 
       {/* Chat Messages */}
-
       {activeChannel && (
-        <div className={'h-[400px] flex flex-col'}>
+        <div className={`${isOverlayMode ? 'max-h-40' : 'h-[400px]'} flex flex-col`}>
           <div
             ref={messagesContainerRef}
-            className='py-[12px] px-[16px] overflow-y-auto flex-grow'
+            className={`${isOverlayMode 
+              ? 'overflow-y-auto max-h-32 space-y-1 hide-scrollbar' 
+              : 'py-[12px] px-[16px] overflow-y-auto flex-grow hide-scrollbar'
+            }`}
           >
             {displayedMessages.length === 0 ? (
-              <div className='text-center text-gray-500 py-4'>
-                No messages yet. Be the first to say something!
-              </div>
+              !isOverlayMode && (
+                <div className='text-center text-gray-500 py-4'>
+                  No messages yet. Be the first to say something!
+                </div>
+              )
             ) : activeChannelRestrictions?.ban ? (
-              <div className='flex flex-row justify-center items-center h-full'>
-                You have been banned from this chat. Please contact the
-                administrator
-              </div>
+              !isOverlayMode && (
+                <div className='flex flex-row justify-center items-center h-full'>
+                  You have been banned from this chat. Please contact the
+                  administrator
+                </div>
+              )
             ) : (
               <>
-                {displayedMessages.map((message, index) => {
-                  return (
-                    <ChatMessage
-                      key={`${message.timetoken}-${index}`}
-                      message={message}
-                      currentUser={chat.currentUser}
-                      users={users}
-                      channel={activeChannel}
-                    />
-                  )
-                })}
+                {displayedMessages
+                  .slice(isOverlayMode ? -3 : 0) // Show only last 3 messages in overlay mode
+                  .map((message, index) => {
+                    return (
+                      <div
+                        key={`${message.timetoken}-${index}`}
+                        className={isOverlayMode 
+                          ? 'mb-2 animate-fade-in-up' 
+                          : ''
+                        }
+                      >
+                        {isOverlayMode ? (
+                          <div className="bg-black/60 text-white text-sm px-3 py-2 rounded-2xl backdrop-blur-sm max-w-fit shadow-lg">
+                            <div className="flex items-start space-x-2">
+                              <div className="font-semibold text-xs opacity-80 min-w-fit">
+                                {message.userId === chat.currentUser.id ? 'You' : users.find(u => u.id === message.userId)?.name?.split(' ')[0] || 'User'}:
+                              </div>
+                              <div className="text-sm">
+                                {message.content.text}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <ChatMessage
+                            message={message}
+                            currentUser={chat.currentUser}
+                            users={users}
+                            channel={activeChannel}
+                          />
+                        )}
+                      </div>
+                    )
+                  })}
               </>
             )}
           </div>
 
-          <MessageInput
-            messageInput={messageInput}
-            setMessageInput={setMessageInput}
-            showMentions={showMentions}
-            setShowMentions={setShowMentions}
-            showReactions={showReactions}
-            setShowReactions={setShowReactions}
-            availableUsers={users}
-            channel={activeChannel}
-            activeChannelRestrictions={activeChannelRestrictions}
-            isGuidedDemo={isGuidedDemo}
-          />
+          {!isOverlayMode && (
+            <>
+              <MessageInput
+                messageInput={messageInput}
+                setMessageInput={setMessageInput}
+                showMentions={showMentions}
+                setShowMentions={setShowMentions}
+                showReactions={showReactions}
+                setShowReactions={setShowReactions}
+                availableUsers={users}
+                channel={activeChannel}
+                activeChannelRestrictions={activeChannelRestrictions}
+                isGuidedDemo={isGuidedDemo}
+              />
 
-          {/* Question Filter Toggle Button - RE-INTRODUCED */}
-          <button
-            onClick={() => setIsQuestionFilterActive(prev => !prev)}
-            className="w-full p-2 mt-1 text-xs text-white bg-gray-700 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {isQuestionFilterActive ? "Show All Messages" : "Show Questions Only"}
-          </button>
+              {/* Question Filter Toggle Button - RE-INTRODUCED */}
+              <button
+                onClick={() => setIsQuestionFilterActive(prev => !prev)}
+                className="w-full p-2 mt-1 text-xs text-white bg-gray-700 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-navy200"
+              >
+                {isQuestionFilterActive ? "Show All Messages" : "Show Questions Only"}
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

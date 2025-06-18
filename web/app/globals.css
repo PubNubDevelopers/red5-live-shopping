@@ -4,15 +4,15 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-  --primary: #171717;
+  --foreground: #184A2C;
+  --primary: #184A2C;
 }
 
 /*
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #10281A;
+    --foreground: #E6F4EA;
   }
 }
 */
@@ -30,7 +30,7 @@ body {
     opacity: 1;
   }
   100% {
-    transform: translateY(-200px);
+    transform: translateY(-300px);
     opacity: 0;
   }
 }

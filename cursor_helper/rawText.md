@@ -1,5 +1,5 @@
 Hello everyone and welcome back
-to another talk shop live stream.
+to another live stream.
 Today we're gonna be diving deep into some old school retro
 gaming with four iconic Nintendo handhelds,
 a Maroon Nintendo Game Boy color,

@@ -115,7 +115,7 @@ function CommentaryRow ({ text, timeCode }) {
   return (
     <div className='flex flex-row gap-2 items-center justify-between font-normal text-sm'>
       <div className=''>{text}</div>
-      <div className='text-neutral500'>{timeCode}</div>
+      <div className=''>{timeCode}</div>
     </div>
   )
 }

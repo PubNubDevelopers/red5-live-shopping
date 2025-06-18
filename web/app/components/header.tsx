@@ -147,7 +147,7 @@ export default function Header ({
           </div>
         </div>
         <div
-          className='flex flex-row gap-2 h-11 rounded-md border-1 border-brandAccent3 px-4 py-2 hover:bg-navy800 shadow-[0px_4px_18px_0px_rgba(88,_156,_255,_0.8)] text-neutral50 items-center cursor-pointer'
+          className='flex flex-row gap-2 h-11 rounded-md border-1 border-brandAccent3 px-4 py-2 hover:bg-navy800 shadow-[0px_4px_18px_0px_rgba(76,_195,_161,_0.8)] text-neutral50 items-center cursor-pointer'
           onClick={e => {
             setGuidesShown(!guidesShown)
             e.stopPropagation()

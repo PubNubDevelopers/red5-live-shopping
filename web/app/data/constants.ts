@@ -1,8 +1,8 @@
 export const channelData = [
   {
     id: "game.chat",
-    name: "Game Chat",
-    description: "Public conversation about the game",
+    name: "Shopping Chat",
+    description: "Public conversation about the shopping stream",
     avatar:
       "https://pn-solution-live-events.netlify.app/avatars/group/chat2.png",
     createInAppContext: true,
@@ -28,7 +28,7 @@ export const dataControlOccupancyChannelId = "game.data-control-occupancy";
 export const uiResetChannel = "game.ui-reset";
 
 //export const streamUrl = "https://youtu.be/IprCMEH8Vt4";
-export const streamUrl = "https://vimeo.com/1083475947"
+export const streamUrl = "https://vimeo.com/1094023400"
 
 export const reactions = ["👍", "❤️", "😂", "😮", "👏"]
 

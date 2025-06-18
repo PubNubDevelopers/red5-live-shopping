@@ -123,11 +123,11 @@ export default function SalesIntroPage ({
   }
 
   return (
-    <div className='h-fit min-h-screen w-screen min-w-screen bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-[#334169] to-navy900 select-none'>
+    <div className='h-fit min-h-screen w-screen min-w-screen bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-[#184A2C] to-navy900 select-none'>
       <div className='pl-[10%] pt-[5%] xl:pt-[10%]'>
         <HomePagePubNubLogo />
         <div className='text-navy100 font-extrabold text-[64px] pt-8'>
-          Live Events Solution Showcase
+          Live Shopping Solution Showcase
         </div>
 
         <div className='pt-[50px]'>
@@ -141,23 +141,7 @@ export default function SalesIntroPage ({
                   Activity detected in this demo environment
                 </div>
                 <div className=''>
-                  If this was not you, please consider using a different
-                  environment.
-                </div>
-                <div className='font-semibold'>
-                  Available environments:
-                  <ul className='px-4 pt-1 list-disc'>
-                    <li>
-                      <a href={`${urls.hostedUrls.salesLed1}`}>
-                        Demo Environment 1
-                      </a>
-                    </li>
-                    <li>
-                      <a href={`${urls.hostedUrls.salesLed2}`}>
-                        Demo Environment 2
-                      </a>
-                    </li>
-                  </ul>
+                  If this was not you, the environment is currently be in use by someone else.
                 </div>
               </div>
             </div>
@@ -166,7 +150,7 @@ export default function SalesIntroPage ({
 
         <div className='flex flex-row gap-6 pt-[62px] pr-6 pb-6 overflow-auto'>
           <HomePageTemplateTile
-            instanceTitle={`Demo Environment: ${process.env.NEXT_PUBLIC_ENVIRONMENT_NUMBER ?? ''}`}
+            instanceTitle={`Demo Environment ${process.env.NEXT_PUBLIC_ENVIRONMENT_NUMBER ?? ''}`}
             title={'Accept & Continue'}
             subtitle={
               'This application uses a shared demo environment, if you modify anything on the backend, such as Illuminate Objects, please return them to their original state after using this demo.'

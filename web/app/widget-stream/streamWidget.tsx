@@ -163,10 +163,18 @@ export default function StreamWidget ({
       const emojiElement = document.createElement('div')
       emojiElement.textContent = messageEvent.message.text
       emojiElement.className =
-        'absolute text-3xl pointer-events-none animate-float-up'
+        'absolute text-3xl pointer-events-none animate-float-up flex items-center justify-center bg-primary border-2 border-accent rounded-full shadow-md'
       emojiElement.style.left = `${Math.random() * 80 + 10}%`
-      emojiElement.style.top = '80%' // Start near the bottom
-      emojiElement.style.position = 'absolute'
+      emojiElement.style.top = '80%'; // Start near the bottom
+      emojiElement.style.position = 'absolute';
+      emojiElement.style.width = '48px';
+      emojiElement.style.height = '48px';
+      emojiElement.style.padding = '0';
+      emojiElement.style.zIndex = '30';
+      emojiElement.style.fontWeight = 'bold';
+      emojiElement.style.boxSizing = 'border-box';
+      emojiElement.style.textAlign = 'center';
+      emojiElement.style.lineHeight = '48px'; // vertical centering
       const container = document.getElementById(
         `live-stream-${isMobilePreview}`
       )
@@ -276,36 +284,74 @@ export default function StreamWidget ({
   }
 
   return (
-    <div className={`${className}`}>
-      <div className='relative'>
+    <div className={
+      (isMobilePreview
+        ? 'w-full h-full p-0 m-0 shadow-none bg-black'
+        : `${className} bg-white shadow-md border-2 border-accent`)
+      + ' rounded-2xl'
+    }>
+      <div className={isMobilePreview ? 'relative w-full h-full' : 'relative'}>
         <div
           id={`live-stream-${isMobilePreview}`}
-          className={`bg-neutral200 ${isMobilePreview ? '' : ''}`}
+          className={
+            isMobilePreview
+              ? 'w-full h-full max-w-full max-h-full bg-black rounded-3xl border-none overflow-hidden'
+              : 'bg-graylight rounded-xl border-2 border-graymed'
+          }
         >
           {isVideoPlaying == true ? (
-            <div className='pointer-events-none'>
-              <ReactPlayer
-                ref={playerRef}
-                url={videoUrl}
-                playing={isVideoPlaying}
-                controls={false}
-                width={isMobilePreview ? 418 : 698}
-                height={isMobilePreview ? 235 : 393}
-                loop={false}
-                muted={isMobilePreview ? true : muted}
-                pip={false}
-                onReady={ev => onVideoReady(ev)}
-                onStart={() => onVideoStart()}
-                onPlay={() => onVideoPlay()}
-                onProgress={ev => onVideoProgress(ev)}
-                progressInterval={1000}
-              />
-            </div>
+            isMobilePreview ? (
+              <div className='pointer-events-none w-full aspect-[9/16] max-w-full overflow-hidden' style={{ transform: 'scale(3)', transformOrigin: 'center' }}>
+                <div style={{ width: '100%', height: 'calc(100% + 15px)', overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: '100%', transform: 'translateY(-15px)' }}>
+                    <ReactPlayer
+                      ref={playerRef}
+                      url={videoUrl}
+                      playing={isVideoPlaying}
+                      controls={false}
+                      width={'100%'}
+                      height={'100%'}
+                      loop={false}
+                      muted={true}
+                      pip={false}
+                      onReady={ev => onVideoReady(ev)}
+                      onStart={() => onVideoStart()}
+                      onPlay={() => onVideoPlay()}
+                      onProgress={ev => onVideoProgress(ev)}
+                      progressInterval={1000}
+                      style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className='pointer-events-none'>
+                <ReactPlayer
+                  ref={playerRef}
+                  url={videoUrl}
+                  playing={isVideoPlaying}
+                  controls={false}
+                  width={698}
+                  height={393}
+                  loop={false}
+                  muted={muted}
+                  pip={false}
+                  onReady={ev => onVideoReady(ev)}
+                  onStart={() => onVideoStart()}
+                  onPlay={() => onVideoPlay()}
+                  onProgress={ev => onVideoProgress(ev)}
+                  progressInterval={1000}
+                  style={{}}
+                />
+              </div>
+            )
           ) : (
             <div
-              className={`flex flex-row items-center justify-center ${
-                isMobilePreview ? 'w-[418px]' : 'w-[698px]'
-              } ${isMobilePreview ? 'h-[235px]' : 'h-[393px]'}`}
+              className={
+                isMobilePreview
+                  ? 'flex flex-row items-center justify-center w-full h-full'
+                  : 'flex flex-row items-center justify-center w-[698px] h-[393px]'
+              }
             >
               <div
                 className={`flex flex-col items-center ${
@@ -328,6 +374,12 @@ export default function StreamWidget ({
             </div>
           )}
         </div>
+        {/* Overlay ReactionsBar at the bottom for mobile, outside pointer-events-none and scaling containers */}
+        {isMobilePreview && (
+          <div className="pointer-events-auto absolute left-0 right-0 bottom-0 w-full flex justify-center z-20">
+            <ReactionsBar />
+          </div>
+        )}
         <div className='absolute top-2 right-1'>
           <GuideOverlay
             id={'streamPresence'}
@@ -353,6 +405,8 @@ export default function StreamWidget ({
             <VolumeButton />
           </div>
         )}
+        {/* For tablet/desktop, keep ReactionsBar in original position */}
+        {!isMobilePreview && <ReactionsBar />}
       </div>
       <GuideOverlay
         id={'reactionsBar1'}
@@ -395,8 +449,6 @@ export default function StreamWidget ({
         flexStyle={'flex-row items-end'}
       />
 
-      <ReactionsBar />
-
       <LiveStreamPoll
         isMobilePreview={isMobilePreview}
         chat={chat}
@@ -420,7 +472,7 @@ export default function StreamWidget ({
             }}
           />
         )}
-        <div className='flex flex-row gap-2 items-center justify-center bg-navy900 py-2 px-4 text-'>
+        <div className={`flex flex-row gap-2 items-center justify-center ${isMobilePreview  ? 'bg-transparent' : 'bg-navy900'} py-2 px-4`}>
           {reactions.map((reaction, index) => (
             <Reaction
               key={index}

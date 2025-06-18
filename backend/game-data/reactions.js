@@ -331,7 +331,7 @@ exports.reactions = [
     persistInHistory: false,
     action: {
       channel: "game.stream-reactions",
-      data: { text: `��`, type: "reaction" },
+      data: { text: `💎`, type: "reaction" },
     },
     repeat: 6,
   },
@@ -367,7 +367,7 @@ exports.reactions = [
     persistInHistory: false,
     action: {
       channel: "game.stream-reactions",
-      data: { text: `��`, type: "reaction" },
+      data: { text: `💎`, type: "reaction" },
     },
     repeat: 9,
   },

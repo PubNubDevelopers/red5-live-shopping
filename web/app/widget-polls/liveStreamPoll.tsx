@@ -346,7 +346,7 @@ function LivePollResults ({ poll }) {
                         </span>
                     </div>
                      <div className="mt-1 h-2 w-full bg-gray-200 rounded">
-                        <div style={{ width: `${percentage}%`}} className="h-full bg-blue-500 rounded"></div>
+                        <div style={{ width: `${percentage}%`}} className="h-full bg-navy500 rounded"></div>
                     </div>
                 </div>
             );

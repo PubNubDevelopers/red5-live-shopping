@@ -1,18 +1,20 @@
-# PubNub Live Events Solution Demo
+# PubNub Live Shopping Solution Demo
 
-Solution showcase to demonstrate how PubNub can enhance your live event, whether it is a sports event, a concert, or any other streamed media event.
+Solution showcase to demonstrate how PubNub can enhance your live shopping experience.
 
 ## Demo
 
-A hosted version of this demo can be found at **[https://pn-solution-live-events.netlify.app/](https://pn-solution-live-events.netlify.app/)**
+A hosted version of this demo can be found at **[https://pn-solution-live-shopping.netlify.app/](https://pn-solution-live-shopping.netlify.app/)**
 
 ![Screenshot](./media/screen01.png)
 
-## Things to Try:
+> **This demo is primarily designed to be delivered as a guided demo by PubNub's sales team.  Contact support@pubnub.com for more information**
 
-- React to the live stream by pressing the emoji below the video (if you press the buttons enough times, you will trigger events such as upgrades, and unlocked polls)
+## Things to Try as a user:
+
+- React to the live stream by pressing the emoji below the video (if you press the buttons enough times, you will trigger that emoji to be upgraded)
 - Send messages in the chat window (log in under a separate window to receive the message)
-- Participate in a poll
+- Participate in the trivia
 - Explore the left-hand menu, this shows the portal data that powers the demo: 
   - Users and Channels
   - Message moderation
@@ -26,21 +28,15 @@ A hosted version of this demo can be found at **[https://pn-solution-live-events
 - Number of people watching the live event (PubNub Presence)
 - Reactions to the live event, e.g. cheering, anger, celebration (PubNub Messaging)
 - Polls - Starting a poll as well as real-time voting and results (PubNub Messaging, and appropriate Channel architecture)
-- Match stats in real-time and synchronized with the video feed (PubNub Messaging)
 - Chat - Send and receive messages (PubNub Chat SDK)
 - Chat - React to messages (PubNub Chat SDK)
 - Chat - Number of people participating (PubNub Presence)
-- Chat - Banning or Muting users (PubNub Channel Monitor)
-- Chat - Tag a user and be notified when you are tagged (PubNub Chat SDK)
 - How PubNub Functions can help extend the capabilities of the live event app
 - Live Commentary (PubNub Messaging)
-- Adverts, both static adverts as well as dynamic adverts triggered by Illuminate (PubNub Illuminate)
-- Gamification: user can earn points as they click ads, predict the match outcome, and interact with polls (App Context, PubNub Illuminate)
+- Gamification: user can earn points as they click ads, or participate in trivia.
 - Gamification: Emoji can be upgraded if they are tapped enough (PubNub Illuminate)
 - User and Channel Management (BizOps Workspace)
 - Moderation (PubNub Channel Monitor)
-- Push Messages for web 
-- Push Messages on mobile (contact our sales for a demo of this)
 - On-screen guides to show how each feature was implemented
 
 ## Installation / Getting Started
