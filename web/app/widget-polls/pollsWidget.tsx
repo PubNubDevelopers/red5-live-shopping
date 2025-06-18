@@ -272,7 +272,7 @@ function CompletedTriviaList({ completed, onViewResult }: { completed: TriviaQue
   return (
     <div className='py-3'>
       <PollCardTitle text="Past Trivia Results" />
-      {completed.map(trivia => (
+      {[...new Map(completed.map(trivia => [trivia.id, trivia])).values()].map(trivia => (
         <div key={trivia.id} className="my-1 p-2 border rounded-md hover:bg-gray-50 cursor-pointer"
              onClick={() => onViewResult(trivia)}
         >

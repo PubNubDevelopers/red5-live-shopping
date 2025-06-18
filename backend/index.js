@@ -243,11 +243,15 @@ async function handleVoteMessage(msg) {
   };
 
   // Publish to POLL_RESULTS_CHANNEL, not stored in history
-  await pubnub.publish({
-    channel: POLL_RESULTS_CHANNEL,
-    message: interimResultMessage,
-    storeInHistory: false,
-  });
+  try {
+    await pubnub.publish({
+      channel: POLL_RESULTS_CHANNEL,
+      message: interimResultMessage,
+      storeInHistory: false,
+    });
+  } catch (error) {
+    console.error("[Backend] Error publishing interim results:", error);
+  }
 }
 
 // Function to process the end of a featured poll
@@ -287,11 +291,15 @@ async function processFeaturedPollEnd(signalMessage) {
         options: [], 
         isFinal: true,
       };
-      await pubnub.publish({
-        channel: POLL_RESULTS_CHANNEL,
-        message: finalResults,
-        storeInHistory: true, 
-      });
+      try {
+        await pubnub.publish({
+          channel: POLL_RESULTS_CHANNEL,
+          message: finalResults,
+          storeInHistory: true, 
+        });
+      } catch (error) {
+        console.error("[Backend] Error publishing final results:", error);
+      }
       // Clean up vote counts for this poll even if it was empty or simulation failed
       delete voteCounts[pollId]; 
       return; 
@@ -314,11 +322,15 @@ async function processFeaturedPollEnd(signalMessage) {
   };
 
   console.log(`[Backend] Publishing final results for featured poll ID: ${pollId}:`, finalResultsMessage);
-  await pubnub.publish({
-    channel: POLL_RESULTS_CHANNEL,
-    message: finalResultsMessage,
-    storeInHistory: true, // Store final results
-  });
+  try {
+    await pubnub.publish({
+      channel: POLL_RESULTS_CHANNEL,
+      message: finalResultsMessage,
+      storeInHistory: true, // Store final results
+    });
+  } catch (error) {
+    console.error("[Backend] Error publishing final results:", error);
+  }
 
   // Clean up vote counts for this poll
   delete voteCounts[pollId];
@@ -373,11 +385,15 @@ async function handlePollResultsMessage(msg) {
     }),
     pollType: "side",
   };
-  await pubnub.publish({
-    channel: POLL_RESULTS_CHANNEL,
-    message: message,
-    storeInHistory: false,
-  });
+  try {
+    await pubnub.publish({
+      channel: POLL_RESULTS_CHANNEL,
+      message: message,
+      storeInHistory: false,
+    });
+  } catch (error) {
+    console.error("[Backend] Error publishing poll results:", error);
+  }
 }
 
 // --------------------------------------------------------------------------------
@@ -439,6 +455,7 @@ function buildMatchScript() {
 // Main timeline logic
 let matchScript = buildMatchScript();
 let currentTime = 0;
+let lastPublishedTime = -1;
 let scriptIndex = 0;
 let loopCount = 0;
 let shouldSendChatMessages = true;
@@ -459,12 +476,16 @@ async function publishMessage(channel, message, persistInHistory = false) {
       // Set User ID
       let userId = message.user || "other";
       pubnub.setUUID(userId);
-      //console.log("publishing message: ", message);
+      console.log("publishing message: ", message);
+      try {
       await pubnub.publish({
         channel: channel,
         message: message,
-        storeInHistory: persistInHistory,
-      });
+          storeInHistory: persistInHistory,
+        });
+      } catch (error) {
+        console.error("[Backend] Error publishing message:", error);
+      }
     }
   } catch (err) {
     console.error("Error publishing message:", err);
@@ -529,6 +550,12 @@ async function runOnDemandScript(script, delay = 0) {
 
 // We'll run the timeline in a loop
 async function runLoop() {
+  console.log('running loop at time:', currentTime);
+  if (currentTime === lastPublishedTime) {
+    console.log('currentTime === lastPublishedTime, skipping loop');
+    return;
+  }
+  lastPublishedTime = currentTime;
   // 1. Check if we have reached or passed the next event in matchScript
   while (
     scriptIndex < matchScript.length &&
@@ -539,7 +566,7 @@ async function runLoop() {
 
     if (!(eventObj.action.channel === "game.chat" && !shouldSendChatMessages)) {
       try {
-        publishMessage(
+        await publishMessage(
           eventObj.action.channel,
           eventObj.action.data,
           !!eventObj.persistInHistory
@@ -555,7 +582,7 @@ async function runLoop() {
   // 2. Send a periodic video status message
   if (!intervalId) return;
 
-  //console.log('publishing video status at time:', currentTime);
+  console.log('publishing video status at time:', currentTime);
   await publishVideoStatus();
 
   // 3. Increment the current time

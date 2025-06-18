@@ -352,7 +352,7 @@ export default function ChatWidget ({
         setAllMessages((history.messages || []).reverse());
       }
       unsubscribeMessages = channel.connect(async (message: Message) => {
-        console.log(`[ChatWidget] MAIN CHAT - New message received. Timetoken: ${message.timetoken}. Content:`, JSON.stringify(message.content));
+        //console.log(`[ChatWidget] MAIN CHAT - New message received. Timetoken: ${message.timetoken}. Content:`, JSON.stringify(message.content));
         setAllMessages(prevMessages => {
           if (prevMessages.some(m => m.timetoken === message.timetoken)) return prevMessages;
           return [...prevMessages, message].slice(-messageLimit);
