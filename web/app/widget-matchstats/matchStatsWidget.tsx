@@ -110,7 +110,6 @@ export default function MatchStatsWidget ({
 
     // Fetch last message to set initial state
     // Ensure chat.currentStreamTimeOffset is available and accurate if used in processReceivedMessage for fetch
-    /*
     if (chat.sdk.getSubscribedChannels().includes(matchStatsChannelId)) { // Check if already subscribed by this or another component
       chat.sdk
         .fetchMessages({
@@ -135,7 +134,7 @@ export default function MatchStatsWidget ({
           setFeaturedProduct(null);
           setIsProductDetailsVisible(false);
         });
-    }*/
+    }
 
     return () => {
       if (chat?.sdk) {
@@ -146,7 +145,7 @@ export default function MatchStatsWidget ({
   }, [chat]); // Assuming chat.sdk and chat.currentStreamTimeOffset are stable or included if they change
 
   return (
-    <div className={`${className} bg-gray-100 p-4 rounded-lg shadow`}>
+    <div className={`${className} bg-gray-100 p-4 rounded-lg shadow ${isMobilePreview ? 'h-full overflow-y-auto' : ''}`}>
       <GuideOverlay 
         id='product-showcase'
         guidesShown={guidesShown} 
@@ -157,50 +156,50 @@ export default function MatchStatsWidget ({
         yOffset={'top-[10px]'}
         flexStyle={'flex-col items-start'}
       />
-      <h2 className="text-xl font-bold mb-4 text-navy">Product Showcase</h2>
+      <h2 className={`${isMobilePreview ? 'text-lg' : 'text-xl'} font-bold mb-4 text-navy900`}>Product Showcase</h2>
       {featuredProduct ? (
         <div className="space-y-4">
-          <div className="flex flex-col md:flex-row md:space-x-4 items-start">
+          <div className={`flex ${isMobilePreview ? 'flex-col' : 'flex-col md:flex-row md:space-x-4'} items-start`}>
             {/* Image Column */} 
             {featuredProduct.images && featuredProduct.images.length > 0 && (
-              <div className="w-full md:w-2/5 lg:w-1/3 mb-4 md:mb-0">
+              <div className={`${isMobilePreview ? 'w-full mb-2' : 'w-full md:w-2/5 lg:w-1/3 mb-4 md:mb-0'}`}>
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                   <Image 
                     src={featuredProduct.images[0]} 
                     alt={`Image of ${featuredProduct.name}`}
-                    width={250} // Reduced example width, layout responsive will adjust
-                    height={200} // Reduced example height
+                    width={isMobilePreview ? 200 : 250}
+                    height={isMobilePreview ? 160 : 200}
                     layout="responsive"
-                    objectFit="contain" // Changed to contain to see whole image, can be cover if preferred
+                    objectFit="contain"
                     className="rounded-lg"
                   />
                 </div>
               </div>
             )}
             {/* Details Column */} 
-            <div className="w-full md:w-3/5 lg:w-2/3 space-y-3">
-              <h3 className="text-2xl font-bold text-gray-800">{featuredProduct.name}</h3>
-              <p className="text-xl font-semibold text-green-600">
+            <div className={`${isMobilePreview ? 'w-full' : 'w-full md:w-3/5 lg:w-2/3'} space-y-3`}>
+              <h3 className={`${isMobilePreview ? 'text-lg' : 'text-2xl'} font-bold text-gray-800`}>{featuredProduct.name}</h3>
+              <p className={`${isMobilePreview ? 'text-lg' : 'text-xl'} font-semibold text-green-600`}>
                 {new Intl.NumberFormat('en-US', { style: 'currency', currency: featuredProduct.currency }).format(parseFloat(featuredProduct.price))}
               </p>
               <div className="bg-white p-3 rounded-lg shadow">
-                <h4 className="font-semibold text-md mb-1 text-gray-700">Description</h4>
-                <p className="text-gray-600 text-sm">{featuredProduct.description}</p>
+                <h4 className={`font-semibold ${isMobilePreview ? 'text-sm' : 'text-md'} mb-1 text-gray-700`}>Description</h4>
+                <p className={`text-gray-600 ${isMobilePreview ? 'text-xs' : 'text-sm'}`}>{featuredProduct.description}</p>
               </div>
             </div>
           </div>
 
           {featuredProduct.conditionSummary && (
             <div className="bg-white p-4 rounded-lg shadow">
-              <h4 className="font-semibold text-lg mb-2 text-gray-700">Condition</h4>
-              <p className="text-gray-600 text-sm">{featuredProduct.conditionSummary}</p>
+              <h4 className={`font-semibold ${isMobilePreview ? 'text-sm' : 'text-lg'} mb-2 text-gray-700`}>Condition</h4>
+              <p className={`text-gray-600 ${isMobilePreview ? 'text-xs' : 'text-sm'}`}>{featuredProduct.conditionSummary}</p>
             </div>
           )}
 
           {featuredProduct.includedAccessories && featuredProduct.includedAccessories.length > 0 && (
             <div className="bg-white p-4 rounded-lg shadow">
-              <h4 className="font-semibold text-lg mb-2 text-gray-700">Included Accessories</h4>
-              <ul className="list-disc list-inside text-gray-600 text-sm">
+              <h4 className={`font-semibold ${isMobilePreview ? 'text-sm' : 'text-lg'} mb-2 text-gray-700`}>Included Accessories</h4>
+              <ul className={`list-disc list-inside text-gray-600 ${isMobilePreview ? 'text-xs' : 'text-sm'}`}>
                 {featuredProduct.includedAccessories.map((item, index) => (
                   <li key={index}>{item}</li>
                 ))}
@@ -210,11 +209,11 @@ export default function MatchStatsWidget ({
 
           {featuredProduct.specifications && featuredProduct.specifications.length > 0 && (
             <div className="bg-white p-4 rounded-lg shadow">
-              <h4 className="font-semibold text-lg mb-2 text-gray-700">Specifications</h4>
-              <ul className="space-y-1 text-sm">
+              <h4 className={`font-semibold ${isMobilePreview ? 'text-sm' : 'text-lg'} mb-2 text-gray-700`}>Specifications</h4>
+              <ul className={`space-y-1 ${isMobilePreview ? 'text-xs' : 'text-sm'}`}>
                 {featuredProduct.specifications.map((spec, index) => (
-                  <li key={index} className="text-gray-600">
-                    <span className="font-medium text-gray-800">{spec.label}:</span> {spec.value}
+                  <li key={index} className="text-gray-800">
+                    <span className="font-medium text-gray-600">{spec.label}:</span> {spec.value}
                   </li>
                 ))}
               </ul>
