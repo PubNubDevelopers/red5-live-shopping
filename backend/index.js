@@ -56,7 +56,7 @@ pubnub.addListener({
       await handleVoteMessage(message);
     } else if (channel === POLL_RESULTS_CHANNEL && message.isFinalSignal === true && message.pollType === 'featuredStreamPoll') {
       // This was the old condition for processFeaturedPollEnd, which is now integrated into the main loop's poll processing
-      // await processFeaturedPollEnd(message); // This specific call might be redundant if main loop handles poll end event from polls.js
+      await processFeaturedPollEnd(message); // This specific call might be redundant if main loop handles poll end event from polls.js
       // The main loop will publish the isFinal:true from polls.js data, which processFeaturedPollEnd handles.
       // However, processFeaturedPollEnd is also called by the script runner when a poll event with isFinalSignal comes up.
       // For clarity, let's assume the main script runner's call to processFeaturedPollEnd (via a direct event in polls.js)

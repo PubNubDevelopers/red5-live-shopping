@@ -40,7 +40,8 @@ export default function SideMenuDataControls ({
     'Game Boy Advance SP',
     'DSi',
     '3DS XL',
-    'End of Featured Poll',
+    'Featured Poll Start',
+    'Featured Poll Results',
     'Pause / Resume Bot chat',
     'End simulation'
   ]
@@ -103,7 +104,16 @@ export default function SideMenuDataControls ({
           channel: serverVideoControlChannelId
         })
         break
-      case 'End of Featured Poll':
+      case 'Featured Poll Start':
+        await chat.sdk.publish({
+          message: {
+            type: 'SEEK',
+            params: { playbackTime: 49000 }
+          },
+          channel: serverVideoControlChannelId
+        })
+        break
+      case 'Featured Poll Results':
         await chat.sdk.publish({
           message: {
             type: 'SEEK',
@@ -112,7 +122,7 @@ export default function SideMenuDataControls ({
           channel: serverVideoControlChannelId
         })
         break
-      case 'Pause / Resume Bot chat':
+        case 'Pause / Resume Bot chat':
         //  Toggle the bot chat
         await chat.sdk.publish({
           message: {
@@ -258,7 +268,7 @@ function DataControlsDropDown ({
         !dropDownVisible && 'hidden'
       } absolute w-48 top-[8px] left-[0px] bg-navy900 border-1 border-white/20 rounded-lg shadow-xl select-none z-40`}
     >
-      <div className='flex flex-col z-50 pt-2 text-neutral-50 text-sm max-h-[420px] overflow-auto'>
+      <div className='flex flex-col z-50 pt-2 text-neutral-50 text-sm max-h-[500px] overflow-auto'>
         {simulationNames.map(
           (name, index) =>
             index > 0 && (

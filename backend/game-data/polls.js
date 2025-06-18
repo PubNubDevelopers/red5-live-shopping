@@ -279,7 +279,7 @@ exports.polls = [
     }
   },
   {
-    "timeSinceVideoStartedInMs": 170000,
+    "timeSinceVideoStartedInMs": 176000,
     "persistInHistory": false,
     "action": {
       "channel": "game.poll-results",
