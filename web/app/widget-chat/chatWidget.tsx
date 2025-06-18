@@ -266,6 +266,16 @@ export default function ChatWidget ({
     scrollToBottom()
   }, [displayedMessages])
 
+  useEffect(() => {
+    if (allMessages.length > 0) {
+      const lastMessageUser = allMessages[allMessages.length - 1].userId
+      if (lastMessageUser.startsWith('user-')) {
+        Message.streamUpdatesOn(allMessages, setAllMessages)
+      }
+    }
+    scrollToBottom()
+  }, [allMessages])
+
   /**
    * Fetches all available channels and organizes them by type
    */
