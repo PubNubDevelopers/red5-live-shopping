@@ -1,120 +1,102 @@
 [
   {
-    "id": "GBC001",
-    "name": "Nintendo Game Boy Color - Maroon",
-    "startTimeMs": 50395,
-    "endTimeMs": 326145,
-    "price": "79.99",
+    "id": "TUMBLER01",
+    "name": "Euro 2024 Stanley Tumbler - Soccer Edition",
+    "startTimeMs": 5000,
+    "endTimeMs": 45000,
+    "price": "34.99",
     "currency": "USD",
     "images": [
-      "/product_images/gbc.jpg",
-      "https://via.placeholder.com/400x300.png?text=GBC+Back",
-      "https://via.placeholder.com/400x300.png?text=GBC+Screen+On"
+      "/ads/ad-offer1.png"
     ],
-    "description": "The first Nintendo handheld with backward compatibility, presented in maroon. Plays original Game Boy and Game Boy Color games.",
+    "description": "Keep your drinks cool during the match with this limited edition Euro 2024 Stanley tumbler. Soccer ball design, 20% off for a limited time.",
     "specifications": [
-      { "label": "Release (Japan)", "value": "Oct 21, 1998" },
-      { "label": "Release (NA)", "value": "Nov 1998" },
-      { "label": "Processor", "value": "8-bit Z80" },
-      { "label": "RAM", "value": "32KB" },
-      { "label": "Screen", "value": "160x144 pixels, up to 56 colors" },
-      { "label": "Compatibility", "value": "Game Boy, Game Boy Color" },
-      { "label": "Region", "value": "Region-Free" },
-      { "label": "Power", "value": "AA Batteries" }
+      { "label": "Capacity", "value": "40 oz / 1.18L" },
+      { "label": "Material", "value": "Stainless Steel" },
+      { "label": "Insulation", "value": "Double-wall vacuum" },
+      { "label": "Edition", "value": "Euro 2024 Limited" },
+      { "label": "Color", "value": "Teal / Soccer Ball Print" }
     ],
-    "conditionSummary": "Excellent shape. Light scratch on the screen. Barcode on back not in best shape but replaceable. Battery bay excellent (no corrosion/rust). All stock. Some yellowing/bumpy feeling on barcode.",
-    "includedAccessories": ["Console Only (Host offers to include AA batteries)"],
+    "conditionSummary": "Brand new, limited edition Euro 2024 soccer design. Currently 20% off the retail price.",
+    "includedAccessories": ["Straw", "Straw Cover", "Handle"],
     "callToAction": {
-      "text": "Add to Cart",
-      "link": "#addToCart_GBC001"
+      "text": "Get Offer",
+      "link": "#getOffer_TUMBLER01"
     }
   },
   {
-    "id": "GBA_SP001",
-    "name": "Nintendo Game Boy Advance SP - Red",
-    "startTimeMs": 328835,
-    "endTimeMs": 643315,
-    "price": "69.99",
+    "id": "MEAL01",
+    "name": "Victory Meal Box - Match Day Special",
+    "startTimeMs": 55000,
+    "endTimeMs": 95000,
+    "price": "24.99",
     "currency": "USD",
     "images": [
-      "/product_images/gbasp.jpg",
-      "https://via.placeholder.com/400x300.png?text=GBA+SP+Open",
-      "https://via.placeholder.com/400x300.png?text=GBA+SP+Back"
+      "/ads/ad-offer2.png"
     ],
-    "description": "Red Game Boy Advance SP with a foldable design and backlit screen. Compatible with Game Boy, Game Boy Color, and Game Boy Advance games.",
+    "description": "Order your Victory Meal now and have it delivered by half time. Choose from a selection of gourmet dishes to fuel your match day.",
     "specifications": [
-      { "label": "Release (Japan)", "value": "Feb 14, 2003" },
-      { "label": "Release (NA)", "value": "March 2003" },
-      { "label": "Processor", "value": "32-bit ARM7TDMI" },
-      { "label": "Screen", "value": "Backlit, Adjustable Brightness" },
-      { "label": "Features", "value": "Foldable Design, Internal Rechargeable Battery" },
-      { "label": "Compatibility", "value": "Game Boy, Game Boy Color, Game Boy Advance" },
-      { "label": "Region", "value": "Region-Free" }
+      { "label": "Serves", "value": "2 people" },
+      { "label": "Delivery", "value": "Within 30 minutes" },
+      { "label": "Options", "value": "12 cuisine choices" },
+      { "label": "Dietary", "value": "Vegetarian options available" },
+      { "label": "Promo", "value": "Match Day Special" }
     ],
-    "conditionSummary": "Not in as good shape. Lots of scratches, some missing film on screen. Wear on siding. Shell and screen not best shape. Game Boy label on back faded. Cartridge port interior fantastic. Shoulder buttons great. Buttons responsive. Internal battery in great shape (not bulging). All stock.",
-    "includedAccessories": ["Charger"],
+    "conditionSummary": "Fresh, hot food delivered to your door. Order during the match and have it arrive by half time.",
+    "includedAccessories": ["Cutlery", "Napkins", "Condiments"],
     "callToAction": {
-      "text": "View Details",
-      "link": "#viewDetails_GBA_SP001"
+      "text": "Order Now",
+      "link": "#order_MEAL01"
     }
   },
   {
-    "id": "DSI001",
-    "name": "Nintendo DSi - White (Japanese Version)",
-    "startTimeMs": 653035,
-    "endTimeMs": 1079564,
+    "id": "SHOES01",
+    "name": "JXC-290 Sport Trainers - New Arrival",
+    "startTimeMs": 105000,
+    "endTimeMs": 145000,
     "price": "89.99",
     "currency": "USD",
     "images": [
-      "/product_images/3ds.jpg",
-      "https://via.placeholder.com/400x300.png?text=DSi+Open",
-      "https://via.placeholder.com/400x300.png?text=DSi+Back"
+      "/ads/ad-offer5.png"
     ],
-    "description": "White Nintendo DSi (Japanese Version) in pretty much pristine condition. Features dual cameras and an SD card slot.",
+    "description": "New arrival JXC-290 sport trainers, up to 30% off. Premium cushioning and sleek navy design for the pitch or the street.",
     "specifications": [
-      { "label": "Release (Japan)", "value": "Nov 1, 2008" },
-      { "label": "Release (NA)", "value": "April 5, 2009" },
-      { "label": "Processor", "value": "Dual ARM processors" },
-      { "label": "Screen", "value": "Dual 256x192 pixels" },
-      { "label": "Features", "value": "Dual Cameras, SD Card Slot, DSi Shop (defunct)" },
-      { "label": "Compatibility (DSi)", "value": "Japanese DSi Games Only (Region-Locked)" },
-      { "label": "Compatibility (DS)", "value": "Nintendo DS Games (All Regions)" },
-      { "label": "Compatibility (GBA)", "value": "No GBA Game Support" }
+      { "label": "Sizes", "value": "US 6 – 13" },
+      { "label": "Material", "value": "Suede / Mesh upper" },
+      { "label": "Sole", "value": "Rubber, textured grip" },
+      { "label": "Cushioning", "value": "EVA midsole" },
+      { "label": "Discount", "value": "Up to 30% off" }
     ],
-    "conditionSummary": "Pretty much pristine. Game card slot fine, SD card slot fine (SD card included). Internal battery flat (good). Headphone port fine. Shoulder buttons working. Hinge tight/responsive. Screens crystal clear. Minor wear on D-pad/buttons. Host will clean screens.",
-    "includedAccessories": ["Charger", "SD Card", "Stylus"],
+    "conditionSummary": "Brand new. Special price for match day viewers — up to 30% off the retail price.",
+    "includedAccessories": ["Shoe Box", "Extra Laces"],
     "callToAction": {
-      "text": "Learn More",
-      "link": "#learnMore_DSI001"
+      "text": "Shop Now",
+      "link": "#shop_SHOES01"
     }
   },
   {
-    "id": "3DSXL001",
-    "name": "Nintendo 3DS XL - (Japanese Version \"LL\")",
-    "startTimeMs": 1079565,
-    "endTimeMs": 1876764,
-    "price": "119.99",
+    "id": "SCREEN01",
+    "name": "Match Day 4K Streaming Screen",
+    "startTimeMs": 155000,
+    "endTimeMs": 195000,
+    "price": "299.99",
     "currency": "USD",
     "images": [
-      "/product_images/3dsll.jpg",
-      "https://via.placeholder.com/400x300.png?text=3DS+XL+Open",
-      "https://via.placeholder.com/400x300.png?text=3DS+XL+Back"
+      "/ads/ad-offer6.png"
     ],
-    "description": "Nintendo 3DS XL (Japanese 'LL' Version) with 3D display capability and dual cameras. Many Japanese 3DS games have English language options.",
+    "description": "Upgrade your match day experience with a high-resolution 4K screen with built-in streaming apps. Watch every goal in stunning detail.",
     "specifications": [
-      { "label": "Release (Japan & NA)", "value": "July 28, 2012" },
-      { "label": "Processor", "value": "Dual-core ARM11" },
-      { "label": "RAM", "value": "128MB" },
-      { "label": "GPU", "value": "More powerful than original 3DS" },
-      { "label": "Screen", "value": "Larger screens than original 3DS, 3D capable" },
-      { "label": "Features", "value": "Dual Cameras, eShop (defunct), 3D Slider, Wireless Button" },
-      { "label": "Compatibility (3DS)", "value": "Japanese 3DS Games Only (Region-Locked)" }
+      { "label": "Resolution", "value": "4K UHD (3840x2160)" },
+      { "label": "Size", "value": "43 inch" },
+      { "label": "Smart TV", "value": "Built-in streaming apps" },
+      { "label": "HDR", "value": "HDR10+ / Dolby Vision" },
+      { "label": "Refresh Rate", "value": "120Hz" }
     ],
-    "conditionSummary": "Some scratches on shell (top/back), markings. Suggests cover/shell replacement. SD card slot has SD card. Wireless button working. 3D slider working. Shoulder buttons working. Circle pad, D-pad, other buttons responsive/not sticky. Touchscreen responsive. Cameras working. Front is in worst shape but better than the GBA SP.",
-    "includedAccessories": ["Charger", "SD Card", "Stylus"],
+    "conditionSummary": "Brand new, factory sealed. Free shipping for match day viewers.",
+    "includedAccessories": ["Remote", "Wall Mount Kit", "HDMI Cable"],
     "callToAction": {
-      "text": "Grab It Now!",
-      "link": "#grabIt_3DSXL001"
+      "text": "Buy Now",
+      "link": "#buy_SCREEN01"
     }
   }
-] 
+]

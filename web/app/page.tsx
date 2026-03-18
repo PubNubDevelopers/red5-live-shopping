@@ -1,83 +1,55 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { Chat, User } from '@pubnub/chat'
-import SalesIntroPage from './pages/salesIntroPage'
+import { useState } from 'react'
+import { Chat } from '@pubnub/chat'
+import { AnimatePresence, motion } from 'framer-motion'
 import LoginPage from './pages/loginPage'
-import SportsEventPage from './pages/sportsEventPage'
+import LiveStreamPage from './pages/liveStreamPage'
 
-export default function Home () {
-  const [salesIntroPageShown, setSalesIntroPageShown] = useState(false)
-  const [loginPageShown, setLoginPageShown] = useState(false)
-  const [guidedDemo, setGuidedDemo] = useState(false)
-  const [userId, setUserId] = useState<string | null>(null)
+const STREAM_NAME = 'soccer-live-demo'
+
+export default function Home() {
   const [chat, setChat] = useState<Chat | null>(null)
-  const [loadMessage, setLoadMessage] = useState('Demo is initializing...')
+  const [userId, setUserId] = useState<string | null>(null)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
-  useEffect(() => {
-    //  NEXT_PUBLIC_GUIDED_DEMO can be ignored and omitted from your .env file
-    const isGuidedDemo = process.env.NEXT_PUBLIC_GUIDED_DEMO
-      ? process.env.NEXT_PUBLIC_GUIDED_DEMO
-      : null
-    setGuidedDemo(isGuidedDemo === 'true')
-    setSalesIntroPageShown(isGuidedDemo === 'true')
-    setLoginPageShown(!(isGuidedDemo === 'true'))
-  }, [])
+  const isLoggedIn = !!userId && !!chat
 
-  if (salesIntroPageShown) {
-    return (
-      <SalesIntroPage
-        setSalesIntroPageShown={setSalesIntroPageShown}
-        setLoginPageShown={setLoginPageShown}
-      />
-    )
-  }
-
-  if (!salesIntroPageShown && loginPageShown && !userId) {
-    return (
-      <LoginPage
-        chat={chat}
-        setChat={setChat}
-        setLoginPageShown={setLoginPageShown}
-        setSalesIntroPageShown={setSalesIntroPageShown}
-        setUserId={setUserId}
-        isGuidedDemo={guidedDemo}
-        setLoadMessage={setLoadMessage}
-        isPopout={false}
-      />
-    )
-  }
-
-  if (userId) {
-    return (
-      <SportsEventPage
-        chat={chat}
-        userId={userId}
-        setUserId={setUserId}
-        setLoginPageShown={setLoginPageShown}
-        isGuidedDemo={guidedDemo}
-      />
-    )
-  }
-
-  if (!userId) {
-    return (
-      <main>
-        <div className='flex flex-col w-full h-screen justify-center items-center'>
-          <div className='flex mb-5 animate-spin'>
-            <Image
-              src='/icons/loading.png'
-              alt='Chat Icon'
-              className=''
-              width={50}
-              height={50}
-              priority
-            />
-          </div>
-          <div className='text-4xl select-none'>{loadMessage}</div>
-        </div>
-      </main>
-    )
-  }
+  return (
+    <AnimatePresence mode="wait">
+      {!isLoggedIn ? (
+        <motion.div
+          key="login"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="w-full h-full"
+        >
+          <LoginPage
+            setChat={setChat}
+            setUserId={setUserId}
+            onLoginStart={() => setIsLoggingIn(true)}
+          />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="stream"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="w-full h-full"
+        >
+          <LiveStreamPage
+            chat={chat}
+            userId={userId}
+            streamName={STREAM_NAME}
+            onLeave={() => {
+              setUserId(null)
+              setChat(null)
+              setIsLoggingIn(false)
+            }}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
 }

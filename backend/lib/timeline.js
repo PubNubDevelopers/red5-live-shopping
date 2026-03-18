@@ -4,9 +4,7 @@
 
 const { chat } = require("../game-data/chat.js");
 const { commentary } = require("../game-data/commentary.js");
-const { polls } = require("../game-data/polls.js");
 const { reactions } = require("../game-data/reactions.js");
-const { stats } = require("../game-data/stats.js");
 
 /**
  * Expand events that have a `repeat` count into multiple events with randomized delays.
@@ -37,20 +35,18 @@ function expandRepeatedEvents(events) {
 }
 
 /**
- * Build the match script by merging all data sources and sorting by time.
+ * Build the script by merging all data sources and sorting by time.
  * @returns {Array} Sorted array of all events
  */
-function buildMatchScript() {
+function buildScript() {
   const merged = [
     ...chat,
     ...commentary,
-    ...polls,
     ...reactions,
-    ...stats
   ];
   const expanded = expandRepeatedEvents(merged);
   expanded.sort((a, b) => a.timeSinceVideoStartedInMs - b.timeSinceVideoStartedInMs);
   return expanded;
 }
 
-module.exports = { expandRepeatedEvents, buildMatchScript };
+module.exports = { expandRepeatedEvents, buildScript };

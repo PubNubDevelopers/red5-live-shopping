@@ -1,39 +1,36 @@
-import type { Metadata } from 'next'
-import { Figtree } from 'next/font/google'
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
-import { HeroUIProvider } from '@heroui/react'
-import { Suspense } from 'react'
 
-const figtree = Figtree({
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
-  subsets: ['latin'], // Or other subsets as needed
+const inter = Inter({
+  subsets: ['latin'],
   display: 'swap',
-  adjustFontFallback: false,
-  fallback: ['Roboto', 'system-ui'], // Optional fallback fonts
-  variable: '--font-figtree' // Define a CSS variable
+  variable: '--font-inter',
 })
 
 export const metadata: Metadata = {
-  title: 'Live Shopping Experience by PubNub',
+  title: 'Soccer Live — PubNub + Red5 Pro Demo',
   description:
-    'Interactive live shopping platform demonstrating how PubNub can enhance your e-commerce experience with real-time features like live chat, product showcases, and interactive shopping elements.'
+    'Interactive live streaming demo with real-time chat, reactions, and in-play betting — powered by PubNub and Red5 Pro.',
 }
 
-export default function RootLayout ({
-  children
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+}
+
+export default function RootLayout({
+  children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en'>
-      <head>
-      <script src="https://www.pubnub.com/scripts/amplitude.js" defer></script>
-      </head>
-      <Suspense>
-        <body className={`${figtree.className} antialiased`}>
-          <HeroUIProvider>{children}</HeroUIProvider>
-        </body>
-      </Suspense>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className={`${inter.className} antialiased bg-black text-white`}>
+        {children}
+      </body>
     </html>
   )
 }
