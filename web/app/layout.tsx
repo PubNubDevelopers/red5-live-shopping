@@ -8,6 +8,7 @@ const inter = Inter({
   variable: '--font-inter',
 })
 
+
 export const metadata: Metadata = {
   title: 'Soccer Live — PubNub + Red5 Pro Demo',
   description:

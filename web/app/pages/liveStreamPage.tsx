@@ -11,6 +11,7 @@ import {
   chatChannelId,
   productHighlightChannelId,
   videoControlChannelId,
+  serverControlChannelId,
 } from '../data/constants'
 import ReactPlayer from 'react-player'
 import BetCard from '../components/BetCard'
@@ -285,8 +286,10 @@ export default function LiveStreamPage({
     if (startingDemo) return
     setStartingDemo(true)
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3002'
-      await fetch(`${backendUrl}/start`, { method: 'POST' })
+      await chat.sdk.publish({
+        channel: serverControlChannelId,
+        message: { type: 'START' },
+      })
     } catch (err) {
       console.error('Failed to start demo:', err)
     }

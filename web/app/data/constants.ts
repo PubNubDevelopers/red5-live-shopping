@@ -16,6 +16,7 @@ export const betResultsChannelId = "game.bet-results";
 export const commentaryChannelId = "game.commentary";
 export const productHighlightChannelId = "game.product-highlight";
 export const videoControlChannelId = "game.video-control";
+export const serverControlChannelId = "game.server-control";
 
 export const reactions = ["⚽", "🔥", "😂", "😮", "👏"];
 
