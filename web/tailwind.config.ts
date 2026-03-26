@@ -1,13 +1,10 @@
 import type { Config } from "tailwindcss";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { heroui } = require("@heroui/react");
 
 export default {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -39,16 +36,5 @@ export default {
     },
   },
   darkMode: "class",
-  plugins: [
-    heroui({
-      themes: {
-        dark: {
-          colors: {
-            primary: "#E53935",
-            secondary: "#FF6F61",
-          },
-        },
-      },
-    }),
-  ],
+  plugins: [],
 } satisfies Config;
