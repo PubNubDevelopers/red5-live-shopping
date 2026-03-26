@@ -5,6 +5,9 @@ import { Chat } from '@pubnub/chat'
 import { AnimatePresence, motion } from 'framer-motion'
 import LoginPage from './pages/loginPage'
 import LiveStreamPage from './pages/liveStreamPage'
+import { WalkthroughProvider } from './walkthrough/WalkthroughProvider'
+import WalkthroughOverlay from './walkthrough/WalkthroughOverlay'
+import WalkthroughLauncher from './walkthrough/WalkthroughLauncher'
 
 const STREAM_NAME = 'soccer-live-demo'
 
@@ -38,16 +41,20 @@ export default function Home() {
           transition={{ duration: 0.4, delay: 0.1 }}
           className="w-full h-full"
         >
-          <LiveStreamPage
-            chat={chat}
-            userId={userId}
-            streamName={STREAM_NAME}
-            onLeave={() => {
-              setUserId(null)
-              setChat(null)
-              setIsLoggingIn(false)
-            }}
-          />
+          <WalkthroughProvider>
+            <LiveStreamPage
+              chat={chat}
+              userId={userId}
+              streamName={STREAM_NAME}
+              onLeave={() => {
+                setUserId(null)
+                setChat(null)
+                setIsLoggingIn(false)
+              }}
+            />
+            <WalkthroughOverlay />
+            <WalkthroughLauncher />
+          </WalkthroughProvider>
         </motion.div>
       )}
     </AnimatePresence>

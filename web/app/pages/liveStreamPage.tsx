@@ -317,7 +317,7 @@ export default function LiveStreamPage({
       onClick={resetUiTimer}
     >
       {/* Full-screen soccer video (react-player) */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      <div data-walkthrough-id="video-player" className="absolute inset-0 z-0 overflow-hidden">
         {isVideoPlaying ? (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[177.78vh] min-h-[56.25vw] w-[177.78vh] h-[56.25vw] pointer-events-none">
             <ReactPlayer
@@ -603,7 +603,7 @@ export default function LiveStreamPage({
         <>
           {/* PiP box — top left, below top bar */}
           {!pipMinimized && (
-            <div className="absolute top-20 left-4 z-30 safe-area-top safe-area-x">
+            <div data-walkthrough-id="pip-camera" className="absolute top-20 left-4 z-30 safe-area-top safe-area-x">
               {liveCamera.mode === 'idle' && (
                 <div className="w-44 h-64 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center gap-3 p-4 relative">
                   {liveCamera.remoteActive ? (
@@ -760,7 +760,7 @@ export default function LiveStreamPage({
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse-live" />
                 <span className="text-white text-xs font-bold">LIVE</span>
               </div>
-              <div className="bg-black/50 backdrop-blur-sm text-white text-xs px-3.5 py-1.5 rounded-full">
+              <div data-walkthrough-id="viewer-count" className="bg-black/50 backdrop-blur-sm text-white text-xs px-3.5 py-1.5 rounded-full">
                 {occupancy.toLocaleString()} watching
               </div>
             </div>
@@ -808,7 +808,7 @@ export default function LiveStreamPage({
           {/* Right column — product card + commentary + bet card */}
           <div className="absolute top-20 right-0 z-20 w-72 safe-area-top safe-area-x flex flex-col gap-3">
             {activeProduct && (
-              <div className="pointer-events-auto">
+              <div data-walkthrough-id="product-card" className="pointer-events-auto">
                 <ProductCardOverlay
                   product={activeProduct}
                   onDismiss={() => setActiveProduct(null)}
@@ -818,11 +818,11 @@ export default function LiveStreamPage({
                 />
               </div>
             )}
-            <div className="pointer-events-auto">
+            <div data-walkthrough-id="commentary" className="pointer-events-auto">
               <LiveCommentary chat={chat} />
             </div>
             {bets.activeBet && (
-              <div className="pointer-events-auto">
+              <div data-walkthrough-id="bet-card" className="pointer-events-auto">
                 <BetCard
                   proposal={bets.activeBet}
                   coins={wallet.coins}
@@ -834,7 +834,7 @@ export default function LiveStreamPage({
           </div>
 
           {/* Chat messages — bottom left */}
-          <div className="absolute bottom-28 left-6 z-10 max-w-[55%] pointer-events-auto">
+          <div data-walkthrough-id="chat-messages" className="absolute bottom-28 left-6 z-10 max-w-[55%] pointer-events-auto">
             <div
               ref={chatScrollRef}
               className="overflow-y-auto hide-scrollbar chat-mask space-y-0.5 max-h-[25vh]"
@@ -855,7 +855,7 @@ export default function LiveStreamPage({
           </div>
 
           {/* Emoji reactions — centered, floating above input */}
-          <div className="absolute bottom-16 left-0 right-0 z-20 flex items-center justify-center gap-1 pointer-events-none safe-area-x">
+          <div data-walkthrough-id="emoji-reactions" className="absolute bottom-16 left-0 right-0 z-20 flex items-center justify-center gap-1 pointer-events-none safe-area-x">
             {reactions.map(emoji => (
               <button
                 key={emoji}

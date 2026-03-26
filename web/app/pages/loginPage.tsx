@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Chat } from '@pubnub/chat'
 import { motion, AnimatePresence } from 'framer-motion'
 import { testUsers, channelData, STARTING_COINS } from '../data/constants'
+import { getAuthKey } from '../getAuthKey'
 
 interface LoginPageProps {
   setChat: (chat: Chat) => void
@@ -36,10 +37,12 @@ export default function LoginPage({
 
       try {
         const tempUserId = 'user-02'
+        const { accessManagerToken: initToken } = await getAuthKey(tempUserId)
         const localChat = await Chat.init({
           publishKey: process.env.NEXT_PUBLIC_PUBNUB_PUBLISH_KEY as string,
           subscribeKey: process.env.NEXT_PUBLIC_PUBNUB_SUBSCRIBE_KEY as string,
           userId: tempUserId,
+          ...(initToken && { authKey: initToken }),
         })
 
         const testUser = await localChat.getUser('user-01')
@@ -108,10 +111,12 @@ export default function LoginPage({
     setIsLoggingIn(true)
     onLoginStart()
     try {
+      const { accessManagerToken } = await getAuthKey(userId)
       const localChat = await Chat.init({
         publishKey: process.env.NEXT_PUBLIC_PUBNUB_PUBLISH_KEY as string,
         subscribeKey: process.env.NEXT_PUBLIC_PUBNUB_SUBSCRIBE_KEY as string,
         userId,
+        ...(accessManagerToken && { authKey: accessManagerToken }),
       })
       setChat(localChat)
       setUserId(userId)

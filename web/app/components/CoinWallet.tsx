@@ -8,6 +8,7 @@ interface CoinWalletProps {
 export default function CoinWallet({ coins, bouncing }: CoinWalletProps) {
   return (
     <div
+      data-walkthrough-id="coin-wallet"
       className={`flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-3.5 py-2 border border-amber-400/20 ${
         bouncing ? 'animate-coin-bounce' : ''
       }`}
