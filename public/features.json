@@ -1,0 +1,18 @@
+{
+  "features": [
+    "Real-Time Chat",
+    "Live Viewer Count",
+    "Emoji Reactions",
+    "Live Commentary Feed",
+    "Product Highlights",
+    "In-Play Betting",
+    "Virtual Coin Economy",
+    "Video Sync Control",
+    "PubNub Architecture",
+    "WebRTC Picture-in-Picture",
+    "PubNub as Signaling Server",
+    "Go Live / Watch",
+    "Main Video Stream",
+    "Red5 Pro + PubNub"
+  ]
+}
