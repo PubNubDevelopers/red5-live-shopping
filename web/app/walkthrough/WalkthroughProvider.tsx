@@ -48,6 +48,16 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
     uiCallbacksRef.current = { ...uiCallbacksRef.current, ...callbacks }
   }, [])
 
+  const reportStepCompleted = useCallback((step: WalkthroughStep) => {
+    if (typeof (window as any).actionCompleted === 'function') {
+      (window as any).actionCompleted({
+        action: step.title,
+        blockDuplicateCalls: true,
+        debug: false,
+      })
+    }
+  }, [])
+
   const executeStepPrepare = useCallback((step: WalkthroughStep) => {
     if (!step.prepareUI) return
     const cb = uiCallbacksRef.current
@@ -71,10 +81,11 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
 
     if (tourSteps[0]) {
       setTimeout(() => executeStepPrepare(tourSteps[0]), 100)
+      setTimeout(() => reportStepCompleted(tourSteps[0]), 150)
     }
 
     localStorage.setItem(SEEN_KEY, 'true')
-  }, [executeStepPrepare])
+  }, [executeStepPrepare, reportStepCompleted])
 
   const endTour = useCallback(() => {
     setIsActive(false)
@@ -93,7 +104,8 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
     setTargetRect(null)
     setCurrentStepIndex(nextIndex)
     setTimeout(() => executeStepPrepare(steps[nextIndex]), 100)
-  }, [currentStepIndex, steps, endTour, executeStepPrepare])
+    setTimeout(() => reportStepCompleted(steps[nextIndex]), 150)
+  }, [currentStepIndex, steps, endTour, executeStepPrepare, reportStepCompleted])
 
   const prevStep = useCallback(() => {
     const prevIndex = currentStepIndex - 1
@@ -101,7 +113,8 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
     setTargetRect(null)
     setCurrentStepIndex(prevIndex)
     setTimeout(() => executeStepPrepare(steps[prevIndex]), 100)
-  }, [currentStepIndex, steps, executeStepPrepare])
+    setTimeout(() => reportStepCompleted(steps[prevIndex]), 150)
+  }, [currentStepIndex, steps, executeStepPrepare, reportStepCompleted])
 
   const switchMode = useCallback((newMode: WalkthroughMode) => {
     const tourSteps = getStepsForMode(newMode)
@@ -111,8 +124,9 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
     setCurrentStepIndex(0)
     if (tourSteps[0]) {
       setTimeout(() => executeStepPrepare(tourSteps[0]), 100)
+      setTimeout(() => reportStepCompleted(tourSteps[0]), 150)
     }
-  }, [executeStepPrepare])
+  }, [executeStepPrepare, reportStepCompleted])
 
   const currentStep = steps[currentStepIndex] ?? null
 
