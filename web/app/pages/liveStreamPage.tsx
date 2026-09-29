@@ -26,7 +26,8 @@ import type { Product, ProductMessage } from '../types/product'
 import { useDeviceDetect } from '../hooks/useDeviceDetect'
 import SwipeContainer from '../components/SwipeContainer'
 import MobileTopSlot from '../components/MobileTopSlot'
-const VIMEO_VIDEO_URL = 'https://vimeo.com/1073970603'
+// The same match recording used by the live-events demo and its timed events.
+const DEMO_VIDEO_URL = 'https://youtu.be/IprCMEH8Vt4'
 
 interface LiveStreamPageProps {
   chat: Chat
@@ -325,13 +326,14 @@ export default function LiveStreamPage({
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-w-[177.78vh] min-h-[56.25vw] w-[177.78vh] h-[56.25vw] pointer-events-none">
             <ReactPlayer
               ref={playerRef}
-              url={VIMEO_VIDEO_URL}
+              url={DEMO_VIDEO_URL}
               playing={isVideoPlaying}
               controls={false}
               width="100%"
               height="100%"
               loop={false}
               muted={true}
+              playsinline={true}
               pip={false}
               onStart={onVideoStart}
               progressInterval={1000}
