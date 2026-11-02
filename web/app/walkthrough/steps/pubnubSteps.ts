@@ -5,7 +5,7 @@ export const pubnubSteps: WalkthroughStep[] = [
     id: 'pn-chat',
     targetSelector: '[data-walkthrough-id="chat-messages"]',
     title: 'Real-Time Chat',
-    body: 'Chat is powered by the **PubNub Chat SDK**. Messages are delivered to all connected viewers in under 50ms via Pub/Sub. The `channel.connect()` callback fires for every new message — no polling, no WebSocket boilerplate.',
+    body: 'Chat is powered by the **PubNub Chat SDK**. Messages are delivered to all connected viewers in under 50ms via Pub/Sub. The `channel.onMessageReceived()` callback fires for every new message — no polling, no WebSocket boilerplate.',
     placement: 'right',
     mode: 'pubnub',
     order: 1,

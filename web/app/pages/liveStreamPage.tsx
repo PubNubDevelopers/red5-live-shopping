@@ -126,7 +126,7 @@ export default function LiveStreamPage({
       if (!channel) return
       setActiveChannel(channel)
 
-      unsubscribeMessages = channel.connect((message: Message) => {
+      unsubscribeMessages = channel.onMessageReceived((message: Message) => {
         setChatMessages(prev => {
           if (prev.some(m => m.timetoken === message.timetoken)) return prev
           return [...prev, message].slice(-50)
